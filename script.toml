@@ -1,0 +1,6 @@
+[scene.street]
+background = ""
+name = "dark alley"
+
+[event.start]
+scene = "preface"
