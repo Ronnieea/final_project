@@ -2,5 +2,106 @@
 background = ""
 name = "dark alley"
 
+[scene.preface]
+background = ""
+name = "Preface"
+
+[scene.hospital]
+background = ""
+name = "hospital"
+
+[scene.bar]
+background = ""
+name = "bar"
+
+[character.man]
+avatar = ""
+name = "黑衣人"
+tachie = ""
+
+[character.marina]
+avatar = ""
+name = "瑪莉娜"
+tachie = ""
+
+[character.jack]
+avatar = ""
+name = "傑克"
+tachie = ""
+
 [event.start]
-scene = "preface"
+dialogue = "ask_1"
+narration = "first_scene"
+scene = "street"
+
+[narration.first_scene]
+text = "李·哈維·奧斯華，一個平凡無奇的小人物，還再為生計煩惱的他，突然...某人打電話給他"
+
+[dialogue.ask_1]
+character = "man"
+text = "兩隻老虎...兩隻老虎..."
+[[dialogue.ask_1.options]]
+text = "跑得快...跑得快..."
+
+[[dialogue.ask_1.options]]
+next = "ask_2"
+text = "跑不快...跑不快..."
+
+[dialogue.ask_2]
+character = "man"
+text = "給你一個禮拜，殺掉甘迺迪，200萬美金，去達拉斯的夜總會找傑克，他會告訴你該怎麼做"
+[[dialogue.ask_2.options]]
+next = ""
+text = "好，我做"
+[[dialogue.ask_2.options]]
+next = "ask_3"
+text = "我已經不做這行了"
+
+[dialogue.ask_3]
+character = "man"
+text = "你會再打給我的"
+
+[event.hospital]
+dialogue = "inhospital"
+narration = "hospital"
+scene = "hospital"
+
+[narration.hospital]
+text = "隔一天，你和往常一樣去醫院探望母親，竟得知母親病危..."
+
+[dialogue.inhospital_player]
+character = "marina"
+[[dialogue.inhospital_player.options]]
+next = "inhospital_marina"
+text = "怎麼會突然這樣?"
+
+[dialogue.inhospital_marina]
+character = "marina"
+text = "醫生說昨天晚上有人拜訪母親後，就變這樣了..."
+[[dialogue.inhospital_marina.options]]
+next = "" #接受暗殺任務
+text = "(打電話給黑衣人)" 
+[[dialogue.inhospital_marina.options]]
+next = "" #甘迺迪活著，舉報
+text = "(不打電話給黑衣人)" 
+
+[event.bar]
+dialogue = "bar"
+narration = "bar"
+scene = "bar"
+
+[narration.bar]
+text = "你接受暗殺任務後，跟著指示來到了達拉斯的夜總會..."
+
+[dialogue.bar]
+character = "jack"
+[[dialogue.bar.options]]
+next = "bar_1"
+text = "傑克在嗎?"
+
+[dialogue.bar_1]
+character = "jack"
+text = "我就是，怎麼了嗎?"
+[[dialogue.bar_1.options]]
+next = ""
+text = "我收到指示要來找你"
