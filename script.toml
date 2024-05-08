@@ -14,6 +14,30 @@ name = "hospital"
 background = ""
 name = "bar"
 
+[scene.shoot_building]
+background = ""
+name = "location_building"
+
+[scene.shoot_hide_in_crowd]
+background = ""
+name = "location_crowd"
+
+[scene.choose_shoot_locaton]
+background = ""
+name = "choose location"
+
+[scene.Kennedy_died]
+background = ""
+name = "Kennedy died"
+
+[scene.Kennedy_lived]
+background = ""
+name = "Kennedy lived"
+
+[scene.home]
+background = ""
+name = "Your home"
+
 [character.man]
 avatar = ""
 name = "黑衣人"
@@ -79,8 +103,8 @@ text = "怎麼會突然這樣?"
 character = "marina"
 text = "醫生說昨天晚上有人拜訪母親後，就變這樣了..."
 [[dialogue.inhospital_marina.options]]
-next = "" #接受暗殺任務
-text = "(打電話給黑衣人)" 
+event = "bar" #接受暗殺任務
+text = "(打電話給黑衣人，接受暗殺任務)" 
 [[dialogue.inhospital_marina.options]]
 next = "" #甘迺迪活著，舉報
 text = "(不打電話給黑衣人)" 
@@ -103,5 +127,75 @@ text = "傑克在嗎?"
 character = "jack"
 text = "我就是，怎麼了嗎?"
 [[dialogue.bar_1.options]]
-next = ""
+next = "bar_2"
 text = "我收到指示要來找你"
+
+[dialogue.bar_2]
+character = "jack"
+text = "挑一個你要的武器"
+[[dialogue.bar_2.options]]
+next = ""
+text = "槍_1"
+[[dialogue.bar_2.options]]
+next = ""
+text = "槍_2"
+
+[event.shot]
+dialogue = "shot"
+narration = "shot"
+scene = "choose_shoot_location"
+
+[narration.shot]
+text = "這天，你來到了甘迺迪遊行路線的附近，尋找適當的位置..."
+
+[dialogue.shot]
+[[dialogue.shot.options]]
+event = "shoot_building"
+text = "倉庫大樓6樓"
+[[dialogue.shot.options]]
+event = "shoot_hide_in_crowd"
+text = "藏匿人群中"
+
+[event.shoot_building] #射中
+event = "Kennedy_died"
+narration = "shooting"
+scene = "shoot_building"
+
+[event.shoot_hide_in_crowd] #沒射中，射偏
+event = "Kennedy_lived"
+narration = "shooting"
+scene = "shoot_hide_in_crowd"
+
+[narration.shooting]
+text = "看著逐漸向準星中央靠近的甘迺迪總統，你扣下了板機..."
+
+[event.Kennedy_died]
+event = "home"
+narration = "Kennedy_died"
+scene = "Kennedy_died"
+
+[event.Kennedy_lived]
+event = "home"
+narration = "Kennedy_lived"
+scene = "Kennedy_lived"
+
+[narration.Kennedy_died]
+text = "你完成了任務，接著趁警察找到你前，趕緊逃跑..."
+
+[narration.Kennedy_lived]
+text = "糟糕! 不小心射偏了...你得趕緊逃走，否則警察要抓到你了..."
+
+[event.home]
+dialogue = "the_way_to_runaway"
+scene = "home"
+
+[dialogue.the_way_to_runaway]
+text = "你跑回到家了，思考著該怎麼逃跑才好..."
+[[dialogue.the_way_to_runaway.options]]
+event = "end_ver1"
+text = "拿著一半的訂金，帶上家人們逃出國"
+[[dialogue.the_way_to_runaway.options]]
+text = ""
+
+[event.end_ver1]
+scene = "happy_ending"
