@@ -1,45 +1,60 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "toml-c.h"
+#include "toml.h"
+#include "parseToml.h"
 
-typedef struct _Scene
+char *get_string_form_toml(toml_table_t *table, char *key)
 {
-    char *name;
-    char *background;
-} Scene;
+    toml_datum_t datum = toml_string_in(table, key);
+    if (datum.ok)
+        return datum.u.s;
+    else
+        return NULL;
+}
 
-typedef struct _Option
+Character *load_character(toml_table_t *table)
 {
-    char *text;
-    char *next;  // 表示跳到下一個dialogue
-    char *event; // 表示結束目前的場景，跳到下一個場景
-} Option;
+    if (!table)
+        return NULL;
 
-typedef struct _Dialogue
-{
-    char *character;
-    char *text;
-    Option *options;
-    uint8_t option_count;
-} Dialogue;
+    Character *character = malloc(sizeof(Character));
+    character->name = get_string_form_toml(table, "name");
+    character->avatar = get_string_form_toml(table, "avatar");
+    character->tachie = get_string_form_toml(table, "tachie");
+    character->location = get_string_form_toml(table, "location"); // 可能為NULL
 
-typedef struct _Event
-{
-    Scene *scene;
-    Dialogue *dialogue;
-} Event;
+    return character;
+}
 
-typedef struct _Character
+Scene *load_scene(toml_table_t *table)
 {
-    char *name;
-    char *avatar;
-    char *tachie;
-    char *location; // 地點，不一定
-} Character;
+    if (!table)
+        return NULL;
 
-typedef struct _Item
+    Scene *scene = malloc(sizeof(Scene));
+    scene->name = get_string_form_toml(table, "name");
+    scene->background = get_string_form_toml(table, "background");
+
+    return scene;
+}
+
+Option *load_option(toml_table_t *table)
 {
-    char *name;
-    char *description; // 不一定
-    char *icon;
-} Item;
+    if (!table)
+        return NULL;
+
+    Option *option = malloc(sizeof(Option));
+    option->text = get_string_form_toml(table, "text");
+    option->next = get_string_form_toml(table, "next");
+    option->event = get_string_form_toml(table, "event");
+
+    return option;
+}
+
+Dialogue *load_dialogue(toml_table_t *table)
+{
+    if (!table)
+        return NULL;
+
+    Dialogue *dialogue = malloc(sizeof(Dialogue));
+    dialogue->character = get_string_form_toml(table, "character");
+    dialogue->text = get_string_form_toml(table, "text");
+}
