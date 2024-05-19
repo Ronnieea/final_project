@@ -66,7 +66,6 @@ character = "man"
 text = "兩隻老虎...兩隻老虎..."
 [[dialogue.ask_1.options]]
 text = "跑得快...跑得快..."
-
 [[dialogue.ask_1.options]]
 next = "ask_2"
 text = "跑不快...跑不快..."
@@ -83,6 +82,7 @@ text = "我已經不做這行了"
 
 [dialogue.ask_3]
 character = "man"
+event = "hospital"
 text = "你會再打給我的"
 
 [event.hospital]
