@@ -1,201 +1,283 @@
-[scene.street]
-background = ""
-name = "dark alley"
+[scene.market]
+background = "/example_game/assets/market.bmp"
+name = "熱鬧市場"
 
-[scene.preface]
-background = ""
-name = "Preface"
+[scene.castle]
+background = "/example_game/assets/castle.bmp"
+name = "古老城堡"
 
-[scene.hospital]
-background = ""
-name = "hospital"
+[scene.forest]
+background = "/example_game/assets/forest.bmp"
+name = "幽深森林"
 
-[scene.bar]
-background = ""
-name = "bar"
+[scene.cave]
+background = "/example_game/assets/cave.bmp"
+name = "神秘洞窟"
 
-[scene.shoot_building]
-background = ""
-name = "location_building"
+[character.knight]
+affinity = 50
+avatar = "/example_game/assets/knight_avatar.bmp"
+name = "騎士阿勇"
+tachie = "/example_game/assets/knight_tachie.bmp"
 
-[scene.shoot_hide_in_crowd]
-background = ""
-name = "location_crowd"
+[character.merchant]
+affinity = 50
+avatar = "/example_game/assets/merchant_avatar.bmp"
+name = "商人"
+tachie = "/example_game/assets/merchant_tachie.bmp"
 
-[scene.choose_shoot_locaton]
-background = ""
-name = "choose location"
+[character.witch]
+affinity = 50
+avatar = "/example_game/assets/witch_avatar.bmp"
+name = "女巫"
+tachie = "/example_game/assets/witch_tachie.bmp"
 
-[scene.Kennedy_died]
-background = ""
-name = "Kennedy died"
+[character.guard]
+affinity = 50
+avatar = "/example_game/assets/guard_avatar.bmp"
+name = "城堡守衛"
+tachie = "/example_game/assets/guard_tachie.bmp"
 
-[scene.Kennedy_lived]
-background = ""
-name = "Kennedy lived"
+[item.sword]
+icon = "/example_game/assets/sword_icon.bmp"
+name = "魔法劍"
 
-[scene.home]
-background = ""
-name = "Your home"
+[item.potion]
+icon = "/example_game/assets/potion_icon.bmp"
+name = "治療藥水"
 
-[character.man]
-avatar = ""
-name = "黑衣人"
-tachie = ""
+[item.scroll]
+icon = "/example_game/assets/scroll_icon.bmp"
+name = "古卷軸"
 
-[character.marina]
-avatar = ""
-name = "瑪莉娜"
-tachie = ""
-
-[character.jack]
-avatar = ""
-name = "傑克"
-tachie = ""
+[player]
+inventory = ["sword", "potion", "scroll"]
+name = "玩家1"
+role = "knight"
 
 [event.start]
-dialogue = "ask_1"
-narration = "first_scene"
-scene = "street"
+dialogue = "intro"
+scene = "market"
 
-[narration.first_scene]
-text = "李·哈維·奧斯華，一個平凡無奇的小人物，還再為生計煩惱的他，突然...某人打電話給他"
+[dialogue.intro]
+character = "knight"
+text = "今天是個充滿希望的日子，我需要準備好迎接挑戰。"
+[[dialogue.intro.options]]
+effect = "+10"
+next = "meet_merchant"
+text = "前往市場準備裝備。"
 
-[dialogue.ask_1]
-character = "man"
-text = "兩隻老虎...兩隻老虎..."
-[[dialogue.ask_1.options]]
-text = "跑得快...跑得快..."
-[[dialogue.ask_1.options]]
-next = "ask_2"
-text = "跑不快...跑不快..."
+[dialogue.meet_merchant]
+character = "merchant"
+item = "sword"
+text = "勇敢的騎士，這是你需要的魔法劍。"
+[[dialogue.meet_merchant.options]]
+effect = "+5"
+event = "castle_entry"
+text = "謝謝你，商人。"
 
-[dialogue.ask_2]
-character = "man"
-text = "給你一個禮拜，殺掉甘迺迪，200萬美金，去達拉斯的夜總會找傑克，他會告訴你該怎麼做"
-[[dialogue.ask_2.options]]
-next = ""
-text = "好，我做"
-[[dialogue.ask_2.options]]
-next = "ask_3"
-text = "我已經不做這行了"
+[event.castle_entry]
+dialogue = "castle_encounter"
+scene = "castle"
 
-[dialogue.ask_3]
-character = "man"
-event = "hospital"
-text = "你會再打給我的"
+[dialogue.castle_encounter]
+character = "guard"
+text = "騎士，這座城堡危險重重，你確定要進去嗎？"
+[[dialogue.castle_encounter.options]]
+effect = "+3"
+next = "explore_castle"
+text = "是的，我必須找到答案。"
+[[dialogue.castle_encounter.options]]
+effect = "+2"
+event = "explore_forest"
+text = "也許我應該先在森林裡尋找線索。"
 
-[event.hospital]
-dialogue = "inhospital"
-narration = "hospital"
-scene = "hospital"
+[event.explore_castle]
+dialogue = "inside_castle"
+scene = "castle"
 
-[narration.hospital]
-text = "隔一天，你和往常一樣去醫院探望母親，竟得知母親病危..."
+[dialogue.inside_castle]
+character = "knight"
+text = "城堡內部比我想像的還要陰森。"
+[[dialogue.inside_castle.options]]
+effect = "+7"
+event = "meet_witch"
+text = "繼續探索，尋找女巫。"
+[[dialogue.inside_castle.options]]
+effect = "+5"
+next = "find_scroll"
+text = "找到一卷古老的卷軸。"
 
-[dialogue.inhospital_player]
-character = "marina"
-[[dialogue.inhospital_player.options]]
-next = "inhospital_marina"
-text = "怎麼會突然這樣?"
+[event.find_scroll]
+dialogue = "scroll_clue"
+scene = "castle"
 
-[dialogue.inhospital_marina]
-character = "marina"
-text = "醫生說昨天晚上有人拜訪母親後，就變這樣了..."
-[[dialogue.inhospital_marina.options]]
-event = "bar" #接受暗殺任務
-text = "(打電話給黑衣人，接受暗殺任務)" 
-[[dialogue.inhospital_marina.options]]
-next = "" #甘迺迪活著，舉報
-text = "(不打電話給黑衣人)" 
+[dialogue.scroll_clue]
+character = "knight"
+item = "scroll"
+text = "這卷軸上記載了神秘的咒語，也許能幫助我。"
+[[dialogue.scroll_clue.options]]
+effect = "+4"
+event = "meet_witch"
+text = "去見女巫。"
+[[dialogue.scroll_clue.options]]
+effect = "+3"
+event = "explore_cave"
+text = "探索城堡後的洞窟。"
 
-[event.bar]
-dialogue = "bar"
-narration = "bar"
-scene = "bar"
+[event.explore_forest]
+dialogue = "forest_path"
+scene = "forest"
 
-[narration.bar]
-text = "你接受暗殺任務後，跟著指示來到了達拉斯的夜總會..."
+[dialogue.forest_path]
+character = "knight"
+text = "森林中充滿了危險和秘密。"
+[[dialogue.forest_path.options]]
+effect = "+6"
+next = "find_potion"
+text = "找到一瓶治療藥水。"
+[[dialogue.forest_path.options]]
+effect = "+5"
+event = "forest_cave"
+text = "發現了一個洞窟入口。"
 
-[dialogue.bar]
-character = "jack"
-[[dialogue.bar.options]]
-next = "bar_1"
-text = "傑克在嗎?"
+[event.find_potion]
+dialogue = "potion_discovery"
+scene = "forest"
 
-[dialogue.bar_1]
-character = "jack"
-text = "我就是，怎麼了嗎?"
-[[dialogue.bar_1.options]]
-next = "bar_2"
-text = "我收到指示要來找你"
+[dialogue.potion_discovery]
+character = "knight"
+item = "potion"
+text = "這瓶藥水或許能在緊急時救我一命。"
+[[dialogue.potion_discovery.options]]
+effect = "+4"
+event = "forest_cave"
+text = "前往洞窟。"
+[[dialogue.potion_discovery.options]]
+effect = "+3"
+event = "return_castle"
+text = "回到城堡探索。"
 
-[dialogue.bar_2]
-character = "jack"
-text = "挑一個你要的武器"
-[[dialogue.bar_2.options]]
-next = ""
-text = "槍_1"
-[[dialogue.bar_2.options]]
-next = ""
-text = "槍_2"
+[event.forest_cave]
+dialogue = "inside_cave"
+scene = "cave"
 
-[event.shot]
-dialogue = "shot"
-narration = "shot"
-scene = "choose_shoot_location"
+[dialogue.inside_cave]
+character = "knight"
+text = "洞窟裡陰暗潮濕，但似乎有重要的線索。"
+[[dialogue.inside_cave.options]]
+effect = "+7"
+event = "meet_witch"
+text = "發現女巫的藏身處。"
+[[dialogue.inside_cave.options]]
+effect = "+5"
+next = "treasure_room"
+text = "找到一間寶藏室。"
 
-[narration.shot]
-text = "這天，你來到了甘迺迪遊行路線的附近，尋找適當的位置..."
+[event.treasure_room]
+dialogue = "treasure_discovery"
+scene = "cave"
 
-[dialogue.shot]
-[[dialogue.shot.options]]
-event = "shoot_building"
-text = "倉庫大樓6樓"
-[[dialogue.shot.options]]
-event = "shoot_hide_in_crowd"
-text = "藏匿人群中"
+[dialogue.treasure_discovery]
+character = "knight"
+text = "這裡堆滿了金銀珠寶，卻隱藏著更大的秘密。"
+[[dialogue.treasure_discovery.options]]
+effect = "+6"
+event = "meet_witch"
+text = "尋找女巫。"
+[[dialogue.treasure_discovery.options]]
+effect = "+5"
+event = "exit_cave"
+text = "離開洞窟。"
 
-[event.shoot_building] #射中
-event = "Kennedy_died"
-narration = "shooting"
-scene = "shoot_building"
+[event.meet_witch]
+dialogue = "witch_confrontation"
+scene = "forest"
 
-[event.shoot_hide_in_crowd] #沒射中，射偏
-event = "Kennedy_lived"
-narration = "shooting"
-scene = "shoot_hide_in_crowd"
+[dialogue.witch_confrontation]
+character = "witch"
+text = "年輕的騎士，你來到這裡有何貴幹？"
+[[dialogue.witch_confrontation.options]]
+effect = "+4"
+next = "battle"
+text = "我來尋找真相，女巫。"
+[[dialogue.witch_confrontation.options]]
+effect = "+5"
+next = "negotiate"
+text = "或許我們可以達成協議。"
 
-[narration.shooting]
-text = "看著逐漸向準星中央靠近的甘迺迪總統，你扣下了板機..."
+[dialogue.battle]
+character = "knight"
+text = "我不會退縮，準備戰鬥！"
+[[dialogue.battle.options]]
+effect = "+8"
+event = "good_ending"
+text = "擊敗女巫，解開城堡的詛咒。"
+[[dialogue.battle.options]]
+effect = "-10"
+event = "bad_ending"
+text = "被女巫擊敗，陷入黑暗。"
+[[dialogue.battle.options]]
+effect = "+5"
+event = "neutral_ending"
+text = "與女巫達成協議，共同探索真相。"
 
-[event.Kennedy_died]
-event = "home"
-narration = "Kennedy_died"
-scene = "Kennedy_died"
+[dialogue.negotiate]
+character = "witch"
+text = "你有勇氣，我願意聽你說。"
+[[dialogue.negotiate.options]]
+effect = "+6"
+event = "neutral_ending"
+text = "提出協議，共同探索真相。"
+[[dialogue.negotiate.options]]
+effect = "-5"
+event = "bad_ending"
+text = "女巫反悔，戰鬥爆發。"
 
-[event.Kennedy_lived]
-event = "home"
-narration = "Kennedy_lived"
-scene = "Kennedy_lived"
+[event.good_ending]
+dialogue = "victory"
+scene = "market"
 
-[narration.Kennedy_died]
-text = "你完成了任務，接著趁警察找到你前，趕緊逃跑..."
+[dialogue.victory]
+character = "knight"
+text = "城堡的詛咒已經解除，和平終於回到了這片土地。"
+[[dialogue.victory.options]]
+effect = "+10"
+event = "end"
+text = "回到市場，與朋友慶祝。"
 
-[narration.Kennedy_lived]
-text = "糟糕! 不小心射偏了...你得趕緊逃走，否則警察要抓到你了..."
+[event.bad_ending]
+dialogue = "defeat"
+scene = "forest"
 
-[event.home]
-dialogue = "the_way_to_runaway"
-scene = "home"
+[dialogue.defeat]
+character = "witch"
+text = "你太天真了，騎士，這片土地永遠屬於我！"
+[[dialogue.defeat.options]]
+effect = "-10"
+event = "end"
+text = "黑暗籠罩了一切。"
 
-[dialogue.the_way_to_runaway]
-text = "你跑回到家了，思考著該怎麼逃跑才好..."
-[[dialogue.the_way_to_runaway.options]]
-event = "end_ver1"
-text = "拿著一半的訂金，帶上家人們逃出國"
-[[dialogue.the_way_to_runaway.options]]
-text = ""
+[event.neutral_ending]
+dialogue = "agreement"
+scene = "forest"
 
-[event.end_ver1]
-scene = "happy_ending"
+[dialogue.agreement]
+character = "knight"
+text = "我們達成協議，共同揭開了真相，和平來之不易。"
+[[dialogue.agreement.options]]
+effect = "+5"
+event = "end"
+text = "回到市場，思考未來。"
+
+[event.end]
+dialogue = "farewell"
+scene = "market"
+
+[dialogue.farewell]
+character = "knight"
+text = "這次的冒險讓我成長許多，我期待著下一次的挑戰。"
+[[dialogue.farewell.options]]
+effect = "+3"
+next = "goodbye"
+text = "再見，勇敢的騎士。"

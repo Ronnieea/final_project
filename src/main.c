@@ -6,7 +6,7 @@
 int main()
 {
     FILE *pFile = NULL;
-    if ((pFile = fopen("script.toml", "r")) == NULL)
+    if ((pFile = fopen("/home/Ronnie/final_project/example_game/script.toml", "r")) == NULL)
     {
         printf("File could not be opened!\n");
         return 1;
@@ -73,10 +73,10 @@ int main()
     }
     for (int i = 0; i < dialogues_count; i++)
     {
-        printf("對話 %s: 角色=%s, 文字=%s\n", dialogues[i].key, dialogues[i].character, dialogues[i].text);
+        printf("對話 %s: 角色=%s, 文字=%s, 特效=%d, 物品=%s\n", dialogues[i].key, dialogues[i].character, dialogues[i].text, dialogues[i].effect, dialogues[i].item);
         for (int j = 0; j < dialogues[i].options_count; j++)
         {
-            printf("  選項 %d: %s, 下一步=%s\n", j + 1, dialogues[i].options[j].text, dialogues[i].options[j].next);
+            printf("  選項 %d: %s, 下一步=%s, 下一事件=%s\n", j + 1, dialogues[i].options[j].text, dialogues[i].options[j].next, dialogues[i].options[j].event);
         }
     }
 

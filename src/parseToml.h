@@ -2,11 +2,11 @@
 #include <stdlib.h>
 #include "toml.h"
 
-#define MAX_SCENES 10
-#define MAX_CHARACTERS 5
-#define MAX_EVENTS 10
-#define MAX_DIALOGUE 10
-#define MAX_ITEMS 5
+#define MAX_SCENES 50
+#define MAX_CHARACTERS 10
+#define MAX_EVENTS 50
+#define MAX_DIALOGUE 50
+#define MAX_ITEMS 10
 #define MAX_OPTIONS 10
 
 typedef struct _Scene
@@ -29,7 +29,7 @@ typedef struct _Dialogue
     char *character;
     char *item;
     char *text;
-    char *event;
+    int32_t effect;
     Option *options;
     uint8_t options_count;
 } Dialogue;

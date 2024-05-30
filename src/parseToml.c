@@ -36,7 +36,6 @@ Dialogue initial_dialogue(Dialogue dialogue)
     dialogue.character = malloc(50 * sizeof(char));
     dialogue.item = malloc(50 * sizeof(char));
     dialogue.text = malloc(200 * sizeof(char));
-    dialogue.event = malloc(50 * sizeof(char));
     dialogue.options = malloc(10 * sizeof(Option));
     dialogue.options->event = malloc(50 * sizeof(char));
     dialogue.options->next = malloc(50 * sizeof(char));
@@ -80,7 +79,6 @@ void free_dialogue(Dialogue dialogue)
     free(dialogue.item);
     free(dialogue.character);
     free(dialogue.text);
-    free(dialogue.event);
     free(dialogue.options->event);
     free(dialogue.options->next);
     free(dialogue.options->text);
@@ -167,7 +165,6 @@ void load_data(toml_table_t *config, Scene scenes[MAX_SCENES], Character charact
             strcpy(dialogues[*dialogues_count].key, key);
             toml_rtos(toml_raw_in(subtable, "character"), &dialogues[*dialogues_count].character);
             toml_rtos(toml_raw_in(subtable, "text"), &dialogues[*dialogues_count].text);
-            toml_rtos(toml_raw_in(subtable, "event"), &dialogues[*dialogues_count].event);
             toml_rtos(toml_raw_in(subtable, "item"), &dialogues[*dialogues_count].item);
 
             // parse options
@@ -178,10 +175,21 @@ void load_data(toml_table_t *config, Scene scenes[MAX_SCENES], Character charact
                 dialogues[*dialogues_count].options_count = options_count;
                 for (int32_t j = 0; j < options_count; j++)
                 {
+                    char *tmp = malloc(50 * sizeof(char));
                     toml_table_t *option = toml_table_at(options, j);
                     toml_rtos(toml_raw_in(option, "text"), &dialogues[*dialogues_count].options[j].text);
                     toml_rtos(toml_raw_in(option, "next"), &dialogues[*dialogues_count].options[j].next);
                     toml_rtos(toml_raw_in(option, "event"), &dialogues[*dialogues_count].options[j].event);
+                    toml_rtos(toml_raw_in(option, "effect"), &tmp);
+                    if (tmp[0] == '+')
+                    {
+                        dialogues[*dialogues_count].effect = strtol(&tmp[1], NULL, 10);
+                    }
+                    else if (tmp[0] == '-')
+                    {
+                        dialogues[*dialogues_count].effect = strtol(&tmp[1], NULL, 10) * -1;
+                    }
+                    free(tmp);
                 }
             }
             else
