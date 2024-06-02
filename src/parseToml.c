@@ -5,6 +5,17 @@
 #include <string.h>
 #include "parseToml.h"
 
+Player initial_player(Player player)
+{
+    player.role = malloc(50 * sizeof(char));
+    player.inventory = malloc(10 * sizeof(char *));
+    for (int i = 0; i < sizeof(player.inventory); i++)
+    {
+        *(player.inventory + i) = malloc(50 * sizeof(char));
+    }
+    return player;
+}
+
 Scene initial_scenes(Scene scene)
 {
     scene.key = malloc(50 * sizeof(char));
@@ -51,6 +62,16 @@ Item initial_item(Item item)
     return item;
 }
 
+void free_player(Player player)
+{
+    free(player.role);
+    for (int i = 0; i < sizeof(player.inventory); i++)
+    {
+        free(*(player.inventory + i));
+    }
+    free(player.inventory);
+}
+
 void free_scene(Scene scene)
 {
     free(scene.key);
@@ -92,12 +113,28 @@ void free_item(Item item)
     free(item.icon);
 }
 
-void load_data(toml_table_t *config, Scene scenes[MAX_SCENES], Character characters[MAX_CHARACTERS], Event events[MAX_EVENTS], Dialogue dialogues[MAX_DIALOGUE], Item items[MAX_ITEMS], Option options[MAX_OPTIONS], uint16_t *scenes_count, uint16_t *characters_count, uint16_t *events_count, uint16_t *dialogues_count, uint16_t *items_count, uint16_t *options_count)
+void load_data(toml_table_t *config, Player *player, Scene scenes[MAX_SCENES], Character characters[MAX_CHARACTERS], Event events[MAX_EVENTS], Dialogue dialogues[MAX_DIALOGUE], Item items[MAX_ITEMS], Option options[MAX_OPTIONS], uint16_t *inventory_count, uint16_t *scenes_count, uint16_t *characters_count, uint16_t *events_count, uint16_t *dialogues_count, uint16_t *items_count, uint16_t *options_count)
 {
     toml_table_t *table = NULL;
     const char *key = NULL;
     char *value = NULL;
 
+    // parse player
+    table = toml_table_in(config, "player");
+    if (table)
+    {
+        toml_rtos(toml_raw_in(table, "role"), &player->role);
+        toml_array_t *inventory_array = toml_array_in(table, "inventory");
+        *inventory_count = toml_array_nelem(inventory_array);
+        for (int i = 0; i < *inventory_count; i++)
+        {
+            const char *inventory_item = toml_raw_at(inventory_array, i);
+            if (inventory_item)
+            {
+                toml_rtos(inventory_item, (player->inventory + i));
+            }
+        }
+    }
     // parse scenes
     table = toml_table_in(config, "scene");
     if (table)
@@ -183,11 +220,11 @@ void load_data(toml_table_t *config, Scene scenes[MAX_SCENES], Character charact
                     toml_rtos(toml_raw_in(option, "effect"), &tmp);
                     if (tmp[0] == '+')
                     {
-                        dialogues[*dialogues_count].effect = strtol(&tmp[1], NULL, 10);
+                        dialogues[*dialogues_count].options[j].effect = strtol(&tmp[1], NULL, 10);
                     }
                     else if (tmp[0] == '-')
                     {
-                        dialogues[*dialogues_count].effect = strtol(&tmp[1], NULL, 10) * -1;
+                        dialogues[*dialogues_count].options[j].effect = strtol(&tmp[1], NULL, 10) * -1;
                     }
                     free(tmp);
                 }

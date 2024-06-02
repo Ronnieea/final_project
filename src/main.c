@@ -21,6 +21,7 @@ int main()
         return 1;
     }
 
+    Player player;
     Scene scenes[MAX_SCENES];
     Character characters[MAX_CHARACTERS];
     Event events[MAX_EVENTS];
@@ -33,7 +34,9 @@ int main()
     uint16_t dialogues_count = 0;
     uint16_t items_count = 0;
     uint16_t options_count = 0;
+    uint16_t inventory_count = 0;
 
+    player = initial_player(player);
     for (int32_t i = 0; i < MAX_SCENES; i++)
     {
         scenes[i] = initial_scenes(scenes[i]);
@@ -55,10 +58,16 @@ int main()
         dialogues[i] = initial_dialogue(dialogues[i]);
     }
 
-    load_data(table, scenes, characters, events, dialogues, items, options, &scenes_count, &characters_count, &events_count, &dialogues_count, &items_count, &options_count);
+    load_data(table, &player, scenes, characters, events, dialogues, items, options, &inventory_count, &scenes_count, &characters_count, &events_count, &dialogues_count, &items_count, &options_count);
     toml_free(table);
 
     // 顯示解析結果
+    printf("player: %s\ninventory: ", player.role);
+    for (int i = 0; i < inventory_count; i++)
+    {
+        printf("%s ", *(player.inventory + i));
+    }
+    printf("\n");
     for (int i = 0; i < scenes_count; i++)
     {
         printf("scene %s: %s, %s\n", scenes[i].key, scenes[i].name, scenes[i].background);
@@ -73,13 +82,14 @@ int main()
     }
     for (int i = 0; i < dialogues_count; i++)
     {
-        printf("對話 %s: 角色=%s, 文字=%s, 特效=%d, 物品=%s\n", dialogues[i].key, dialogues[i].character, dialogues[i].text, dialogues[i].effect, dialogues[i].item);
+        printf("對話 %s: 角色=%s, 文字=%s, 物品=%s\n", dialogues[i].key, dialogues[i].character, dialogues[i].text, dialogues[i].item);
         for (int j = 0; j < dialogues[i].options_count; j++)
         {
-            printf("  選項 %d: %s, 下一步=%s, 下一事件=%s\n", j + 1, dialogues[i].options[j].text, dialogues[i].options[j].next, dialogues[i].options[j].event);
+            printf("  選項 %d: %s, 下一步=%s, 下一事件=%s, 特效=%d\n", j + 1, dialogues[i].options[j].text, dialogues[i].options[j].next, dialogues[i].options[j].event, dialogues[i].options[j].effect);
         }
     }
 
+    free_player(player);
     for (int32_t i = 0; i < MAX_SCENES; i++)
     {
         free_scene(scenes[i]);

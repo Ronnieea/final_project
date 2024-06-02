@@ -21,6 +21,7 @@ typedef struct _Option
     char *text;
     char *next;  // 表示跳到下一個dialogue
     char *event; // 表示結束目前的場景，跳到下一個場景
+    int32_t effect;
 } Option;
 
 typedef struct _Dialogue
@@ -29,7 +30,6 @@ typedef struct _Dialogue
     char *character;
     char *item;
     char *text;
-    int32_t effect;
     Option *options;
     uint8_t options_count;
 } Dialogue;
@@ -56,12 +56,20 @@ typedef struct _Item
     char *icon;
 } Item;
 
-void load_data(toml_table_t *config, Scene scenes[MAX_SCENES], Character characters[MAX_CHARACTERS], Event events[MAX_EVENTS], Dialogue dialogues[MAX_DIALOGUE], Item items[MAX_ITEMS], Option options[MAX_OPTIONS], uint16_t *scenes_count, uint16_t *characters_count, uint16_t *events_count, uint16_t *dialogues_count, uint16_t *items_count, uint16_t *options_count);
+typedef struct _player
+{
+    char *role;
+    char **inventory;
+} Player;
+
+void load_data(toml_table_t *config, Player *player, Scene scenes[MAX_SCENES], Character characters[MAX_CHARACTERS], Event events[MAX_EVENTS], Dialogue dialogues[MAX_DIALOGUE], Item items[MAX_ITEMS], Option options[MAX_OPTIONS], uint16_t *inventory_count, uint16_t *scenes_count, uint16_t *characters_count, uint16_t *events_count, uint16_t *dialogues_count, uint16_t *items_count, uint16_t *options_count);
+Player initial_player(Player player);
 Scene initial_scenes(Scene scene);
 Character initial_character(Character character);
 Event initial_event(Event event);
 Dialogue initial_dialogue(Dialogue dialogue);
 Item initial_item(Item item);
+void free_player(Player player);
 void free_scene(Scene scene);
 void free_character(Character character);
 void free_event(Event event);
