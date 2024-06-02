@@ -52,7 +52,6 @@ name = "古卷軸"
 
 [player]
 inventory = ["sword", "potion", "scroll"]
-name = "玩家1"
 role = "knight"
 
 [event.start]
@@ -85,16 +84,12 @@ character = "guard"
 text = "騎士，這座城堡危險重重，你確定要進去嗎？"
 [[dialogue.castle_encounter.options]]
 effect = "+3"
-next = "explore_castle"
+next = "inside_castle"
 text = "是的，我必須找到答案。"
 [[dialogue.castle_encounter.options]]
 effect = "+2"
 event = "explore_forest"
 text = "也許我應該先在森林裡尋找線索。"
-
-[event.explore_castle]
-dialogue = "inside_castle"
-scene = "castle"
 
 [dialogue.inside_castle]
 character = "knight"
@@ -105,12 +100,8 @@ event = "meet_witch"
 text = "繼續探索，尋找女巫。"
 [[dialogue.inside_castle.options]]
 effect = "+5"
-next = "find_scroll"
+next = "scroll_clue"
 text = "找到一卷古老的卷軸。"
-
-[event.find_scroll]
-dialogue = "scroll_clue"
-scene = "castle"
 
 [dialogue.scroll_clue]
 character = "knight"
@@ -122,7 +113,7 @@ event = "meet_witch"
 text = "去見女巫。"
 [[dialogue.scroll_clue.options]]
 effect = "+3"
-event = "explore_cave"
+event = "forest_cave"
 text = "探索城堡後的洞窟。"
 
 [event.explore_forest]
@@ -134,16 +125,12 @@ character = "knight"
 text = "森林中充滿了危險和秘密。"
 [[dialogue.forest_path.options]]
 effect = "+6"
-next = "find_potion"
+next = "potion_discovery"
 text = "找到一瓶治療藥水。"
 [[dialogue.forest_path.options]]
 effect = "+5"
 event = "forest_cave"
 text = "發現了一個洞窟入口。"
-
-[event.find_potion]
-dialogue = "potion_discovery"
-scene = "forest"
 
 [dialogue.potion_discovery]
 character = "knight"
@@ -158,6 +145,18 @@ effect = "+3"
 event = "return_castle"
 text = "回到城堡探索。"
 
+[event.return_castle]
+dialogue = "back_to_castle"
+scene = "castle"
+
+[dialogue.back_to_castle]
+character = "knight"
+text = "回到城堡，希望能找到更多線索。"
+[[dialogue.back_to_castle.options]]
+effect = "+4"
+next = "inside_castle"
+text = "繼續探索城堡。"
+
 [event.forest_cave]
 dialogue = "inside_cave"
 scene = "cave"
@@ -167,32 +166,36 @@ character = "knight"
 text = "洞窟裡陰暗潮濕，但似乎有重要的線索。"
 [[dialogue.inside_cave.options]]
 effect = "+7"
-event = "meet_witch"
+next = "witch_confrontation"
 text = "發現女巫的藏身處。"
 [[dialogue.inside_cave.options]]
 effect = "+5"
-next = "treasure_room"
+next = "treasure_discovery"
 text = "找到一間寶藏室。"
-
-[event.treasure_room]
-dialogue = "treasure_discovery"
-scene = "cave"
 
 [dialogue.treasure_discovery]
 character = "knight"
 text = "這裡堆滿了金銀珠寶，卻隱藏著更大的秘密。"
 [[dialogue.treasure_discovery.options]]
 effect = "+6"
-event = "meet_witch"
+next = "witch_confrontation"
 text = "尋找女巫。"
 [[dialogue.treasure_discovery.options]]
 effect = "+5"
 event = "exit_cave"
 text = "離開洞窟。"
 
-[event.meet_witch]
-dialogue = "witch_confrontation"
+[event.exit_cave]
+dialogue = "leave_cave"
 scene = "forest"
+
+[dialogue.leave_cave]
+character = "knight"
+text = "我已經探索完洞窟，該回到城堡了。"
+[[dialogue.leave_cave.options]]
+effect = "+5"
+event = "return_castle"
+text = "回到城堡。"
 
 [dialogue.witch_confrontation]
 character = "witch"
@@ -277,7 +280,3 @@ scene = "market"
 [dialogue.farewell]
 character = "knight"
 text = "這次的冒險讓我成長許多，我期待著下一次的挑戰。"
-[[dialogue.farewell.options]]
-effect = "+3"
-next = "goodbye"
-text = "再見，勇敢的騎士。"
