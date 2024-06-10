@@ -197,6 +197,10 @@ effect = "+5"
 event = "return_castle"
 text = "回到城堡。"
 
+[event.meet_witch]
+dialogue = "witch_confrontation"
+scene = "forest"
+
 [dialogue.witch_confrontation]
 character = "witch"
 text = "年輕的騎士，你來到這裡有何貴幹？"
@@ -246,7 +250,6 @@ character = "knight"
 text = "城堡的詛咒已經解除，和平終於回到了這片土地。"
 [[dialogue.victory.options]]
 effect = "+10"
-event = "end"
 text = "回到市場，與朋友慶祝。"
 
 [event.bad_ending]
@@ -258,8 +261,7 @@ character = "witch"
 text = "你太天真了，騎士，這片土地永遠屬於我！"
 [[dialogue.defeat.options]]
 effect = "-10"
-event = "end"
-text = "黑暗籠罩了一切。"
+text = "黑暗籠罩了一切..."
 
 [event.neutral_ending]
 dialogue = "agreement"
