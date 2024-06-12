@@ -9,5 +9,8 @@ void generate_image(const char *prompt, const char *filename);
 void parse_script_and_generate_images(const char *script_path);
 void generate_game_script();
 void get_llm_response(const char *character, const char *input_text, char *response, size_t response_size);
+void get_audio_decription();
+void generate_audio(const char *prompt, char *output_file);
+void generate_speech();
 
 #endif
