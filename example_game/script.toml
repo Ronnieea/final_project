@@ -1,54 +1,54 @@
 [scene.market]
 background = "/example_game/assets/market.bmp"
-name = "熱鬧市場"
+name = "Bustling Market"
 
 [scene.castle]
 background = "/example_game/assets/castle.bmp"
-name = "古老城堡"
+name = "Ancient Castle"
 
 [scene.forest]
 background = "/example_game/assets/forest.bmp"
-name = "幽深森林"
+name = "Deep Forest"
 
 [scene.cave]
 background = "/example_game/assets/cave.bmp"
-name = "神秘洞窟"
+name = "Mysterious Cave"
 
 [character.knight]
 affinity = 50
 avatar = "/example_game/assets/knight_avatar.bmp"
-name = "騎士阿勇"
+name = "Knight A-Yong"
 tachie = "/example_game/assets/knight_tachie.bmp"
 
 [character.merchant]
 affinity = 50
 avatar = "/example_game/assets/merchant_avatar.bmp"
-name = "商人"
+name = "Merchant"
 tachie = "/example_game/assets/merchant_tachie.bmp"
 
 [character.witch]
 affinity = 50
 avatar = "/example_game/assets/witch_avatar.bmp"
-name = "女巫"
+name = "Witch"
 tachie = "/example_game/assets/witch_tachie.bmp"
 
 [character.guard]
 affinity = 50
 avatar = "/example_game/assets/guard_avatar.bmp"
-name = "城堡守衛"
+name = "Castle Guard"
 tachie = "/example_game/assets/guard_tachie.bmp"
 
 [item.sword]
 icon = "/example_game/assets/sword_icon.bmp"
-name = "魔法劍"
+name = "Magic Sword"
 
 [item.potion]
 icon = "/example_game/assets/potion_icon.bmp"
-name = "治療藥水"
+name = "Healing Potion"
 
 [item.scroll]
 icon = "/example_game/assets/scroll_icon.bmp"
-name = "古卷軸"
+name = "Ancient Scroll"
 
 [player]
 inventory = ["sword", "potion", "scroll"]
@@ -60,20 +60,20 @@ scene = "market"
 
 [dialogue.intro]
 character = "knight"
-text = "今天是個充滿希望的日子，我需要準備好迎接挑戰。"
+text = "Today is a hopeful day, I need to prepare for the challenges ahead."
 [[dialogue.intro.options]]
 effect = "+10"
 next = "meet_merchant"
-text = "前往市場準備裝備。"
+text = "Go to the market to prepare equipment."
 
 [dialogue.meet_merchant]
 character = "merchant"
 item = "sword"
-text = "勇敢的騎士，這是你需要的魔法劍。"
+text = "Brave knight, this is the magic sword you need."
 [[dialogue.meet_merchant.options]]
 effect = "+5"
 event = "castle_entry"
-text = "謝謝你，商人。"
+text = "Thank you, merchant."
 
 [event.castle_entry]
 dialogue = "castle_encounter"
@@ -81,40 +81,40 @@ scene = "castle"
 
 [dialogue.castle_encounter]
 character = "guard"
-text = "騎士，這座城堡危險重重，你確定要進去嗎？"
+text = "Knight, this castle is full of dangers, are you sure you want to enter?"
 [[dialogue.castle_encounter.options]]
 effect = "+3"
 next = "inside_castle"
-text = "是的，我必須找到答案。"
+text = "Yes, I must find the answer."
 [[dialogue.castle_encounter.options]]
 effect = "+2"
 event = "explore_forest"
-text = "也許我應該先在森林裡尋找線索。"
+text = "Maybe I should search for clues in the forest first."
 
 [dialogue.inside_castle]
 character = "knight"
-text = "城堡內部比我想像的還要陰森。"
+text = "The inside of the castle is gloomier than I imagined."
 [[dialogue.inside_castle.options]]
 effect = "+7"
 event = "meet_witch"
-text = "繼續探索，尋找女巫。"
+text = "Continue exploring, looking for the witch."
 [[dialogue.inside_castle.options]]
 effect = "+5"
 next = "scroll_clue"
-text = "找到一卷古老的卷軸。"
+text = "Found an ancient scroll."
 
 [dialogue.scroll_clue]
 character = "knight"
 item = "scroll"
-text = "這卷軸上記載了神秘的咒語，也許能幫助我。"
+text = "This scroll records mysterious spells, maybe it can help me."
 [[dialogue.scroll_clue.options]]
 effect = "+4"
 event = "meet_witch"
-text = "去見女巫。"
+text = "Go to see the witch."
 [[dialogue.scroll_clue.options]]
 effect = "+3"
 event = "forest_cave"
-text = "探索城堡後的洞窟。"
+text = "Explore the cave behind the castle."
 
 [event.explore_forest]
 dialogue = "forest_path"
@@ -122,28 +122,28 @@ scene = "forest"
 
 [dialogue.forest_path]
 character = "knight"
-text = "森林中充滿了危險和秘密。"
+text = "The forest is full of dangers and secrets."
 [[dialogue.forest_path.options]]
 effect = "+6"
 next = "potion_discovery"
-text = "找到一瓶治療藥水。"
+text = "Found a healing potion."
 [[dialogue.forest_path.options]]
 effect = "+5"
 event = "forest_cave"
-text = "發現了一個洞窟入口。"
+text = "Discovered a cave entrance."
 
 [dialogue.potion_discovery]
 character = "knight"
 item = "potion"
-text = "這瓶藥水或許能在緊急時救我一命。"
+text = "This potion might save my life in an emergency."
 [[dialogue.potion_discovery.options]]
 effect = "+4"
 event = "forest_cave"
-text = "前往洞窟。"
+text = "Head to the cave."
 [[dialogue.potion_discovery.options]]
 effect = "+3"
 event = "return_castle"
-text = "回到城堡探索。"
+text = "Return to the castle to explore."
 
 [event.return_castle]
 dialogue = "back_to_castle"
@@ -151,11 +151,11 @@ scene = "castle"
 
 [dialogue.back_to_castle]
 character = "knight"
-text = "回到城堡，希望能找到更多線索。"
+text = "Back at the castle, hoping to find more clues."
 [[dialogue.back_to_castle.options]]
 effect = "+4"
 next = "inside_castle"
-text = "繼續探索城堡。"
+text = "Continue exploring the castle."
 
 [event.forest_cave]
 dialogue = "inside_cave"
@@ -163,27 +163,27 @@ scene = "cave"
 
 [dialogue.inside_cave]
 character = "knight"
-text = "洞窟裡陰暗潮濕，但似乎有重要的線索。"
+text = "The cave is dark and damp, but seems to hold important clues."
 [[dialogue.inside_cave.options]]
 effect = "+7"
 next = "witch_confrontation"
-text = "發現女巫的藏身處。"
+text = "Found the witch's hiding place."
 [[dialogue.inside_cave.options]]
 effect = "+5"
 next = "treasure_discovery"
-text = "找到一間寶藏室。"
+text = "Found a treasure room."
 
 [dialogue.treasure_discovery]
 character = "knight"
-text = "這裡堆滿了金銀珠寶，卻隱藏著更大的秘密。"
+text = "This place is full of gold and jewels, but hides an even greater secret."
 [[dialogue.treasure_discovery.options]]
 effect = "+6"
 next = "witch_confrontation"
-text = "尋找女巫。"
+text = "Search for the witch."
 [[dialogue.treasure_discovery.options]]
 effect = "+5"
 event = "exit_cave"
-text = "離開洞窟。"
+text = "Leave the cave."
 
 [event.exit_cave]
 dialogue = "leave_cave"
@@ -191,11 +191,11 @@ scene = "forest"
 
 [dialogue.leave_cave]
 character = "knight"
-text = "我已經探索完洞窟，該回到城堡了。"
+text = "I've explored the cave, now I should return to the castle."
 [[dialogue.leave_cave.options]]
 effect = "+5"
 event = "return_castle"
-text = "回到城堡。"
+text = "Return to the castle."
 
 [event.meet_witch]
 dialogue = "witch_confrontation"
@@ -203,43 +203,43 @@ scene = "forest"
 
 [dialogue.witch_confrontation]
 character = "witch"
-text = "年輕的騎士，你來到這裡有何貴幹？"
+text = "Young knight, why have you come here?"
 [[dialogue.witch_confrontation.options]]
 effect = "+4"
 next = "battle"
-text = "我來尋找真相，女巫。"
+text = "I seek the truth, witch."
 [[dialogue.witch_confrontation.options]]
 effect = "+5"
 next = "negotiate"
-text = "或許我們可以達成協議。"
+text = "Perhaps we can come to an agreement."
 
 [dialogue.battle]
 character = "knight"
-text = "我不會退縮，準備戰鬥！"
+text = "I will not back down, prepare for battle!"
 [[dialogue.battle.options]]
 effect = "+8"
 event = "good_ending"
-text = "擊敗女巫，解開城堡的詛咒。"
+text = "Defeat the witch and lift the castle's curse."
 [[dialogue.battle.options]]
 effect = "-10"
 event = "bad_ending"
-text = "被女巫擊敗，陷入黑暗。"
+text = "Defeated by the witch, engulfed in darkness."
 [[dialogue.battle.options]]
 effect = "+5"
 event = "neutral_ending"
-text = "與女巫達成協議，共同探索真相。"
+text = "Make an agreement with the witch, uncover the truth together."
 
 [dialogue.negotiate]
 character = "witch"
-text = "你有勇氣，我願意聽你說。"
+text = "You have courage, I will listen to you."
 [[dialogue.negotiate.options]]
 effect = "+6"
 event = "neutral_ending"
-text = "提出協議，共同探索真相。"
+text = "Propose an agreement, uncover the truth together."
 [[dialogue.negotiate.options]]
 effect = "-5"
 event = "bad_ending"
-text = "女巫反悔，戰鬥爆發。"
+text = "The witch goes back on her word, a fight ensues."
 
 [event.good_ending]
 dialogue = "victory"
@@ -247,10 +247,10 @@ scene = "market"
 
 [dialogue.victory]
 character = "knight"
-text = "城堡的詛咒已經解除，和平終於回到了這片土地。"
+text = "The castle's curse is lifted, peace has finally returned to this land."
 [[dialogue.victory.options]]
 effect = "+10"
-text = "回到市場，與朋友慶祝。"
+text = "Return to the market to celebrate with friends."
 
 [event.bad_ending]
 dialogue = "defeat"
@@ -258,10 +258,10 @@ scene = "forest"
 
 [dialogue.defeat]
 character = "witch"
-text = "你太天真了，騎士，這片土地永遠屬於我！"
+text = "You are too naive, knight. This land will always belong to me!"
 [[dialogue.defeat.options]]
 effect = "-10"
-text = "黑暗籠罩了一切..."
+text = "Darkness enveloped everything..."
 
 [event.neutral_ending]
 dialogue = "agreement"
@@ -269,11 +269,11 @@ scene = "forest"
 
 [dialogue.agreement]
 character = "knight"
-text = "我們達成協議，共同揭開了真相，和平來之不易。"
+text = "We reached an agreement, uncovering the truth together. Peace is hard-won."
 [[dialogue.agreement.options]]
 effect = "+5"
 event = "end"
-text = "回到市場，思考未來。"
+text = "Return to the market, contemplating the future."
 
 [event.end]
 dialogue = "farewell"
@@ -281,4 +281,4 @@ scene = "market"
 
 [dialogue.farewell]
 character = "knight"
-text = "這次的冒險讓我成長許多，我期待著下一次的挑戰。"
+text = "This adventure has taught me much, I look forward to the next challenge."
