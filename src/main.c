@@ -4,6 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "parseToml.h"
+#include "save_game.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
@@ -16,9 +17,12 @@
 #define MAX_OPTIONS 10
 
 SDL_Texture *current_background_texture = NULL;
+SDL_Texture *old_background_texture = NULL;
 SDL_Texture *current_character_texture = NULL;
 TTF_Font *font = NULL;
 int show_overlay = 0;
+char *saveFilePath = "save_game.json"; // 保存檔案地址
+char current_background_path[512];
 
 int init_sdl(SDL_Window **window, SDL_Renderer **renderer)
 {
@@ -284,7 +288,34 @@ void print_all_data(Scene scenes[], uint16_t scenes_count, Character characters[
     }
 }
 
-Dialogue *process_dialogue(Dialogue *current_dialogue, Dialogue dialogues[], uint16_t dialogues_count, Event events[], uint16_t events_count, Event **next_event, Scene scenes[], uint16_t scenes_count, Character characters[], uint16_t characters_count, SDL_Renderer *renderer)
+void animate_transition(SDL_Renderer *renderer, SDL_Texture *from_texture, SDL_Texture *to_texture)
+{
+    int w, h;
+    SDL_GetRendererOutputSize(renderer, &w, &h);
+
+    for (int alpha = 0; alpha <= 255; alpha += 5)
+    {
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+
+        if (from_texture != NULL)
+        {
+            SDL_SetTextureAlphaMod(from_texture, 255 - alpha);
+            SDL_RenderCopy(renderer, from_texture, NULL, NULL);
+        }
+
+        if (to_texture != NULL)
+        {
+            SDL_SetTextureAlphaMod(to_texture, alpha);
+            SDL_RenderCopy(renderer, to_texture, NULL, NULL);
+        }
+
+        SDL_RenderPresent(renderer);
+        SDL_Delay(10); // 調整延遲以控制動畫速度
+    }
+}
+
+Dialogue *process_dialogue(Dialogue *current_dialogue, Dialogue dialogues[], uint16_t dialogues_count, Event events[], uint16_t events_count, Event **next_event, Scene scenes[], uint16_t scenes_count, Character characters[], uint16_t characters_count, SDL_Renderer *renderer, int *ending)
 {
     Character *character = find_character_by_key(characters, characters_count, current_dialogue->character);
     if (character != NULL)
@@ -313,6 +344,7 @@ Dialogue *process_dialogue(Dialogue *current_dialogue, Dialogue dialogues[], uin
     SDL_Color textColor = {0, 0, 0, 255}; // 黑色
     SDL_Texture *text_texture = render_text(renderer, current_dialogue->text, textColor);
 
+    animate_transition(renderer, old_background_texture, current_background_texture);
     display_image(renderer, current_background_texture, current_character_texture, text_texture, current_dialogue);
 
     printf("Dialogue: %s\n", current_dialogue->text);
@@ -336,6 +368,7 @@ Dialogue *process_dialogue(Dialogue *current_dialogue, Dialogue dialogues[], uin
         {
             if (e.type == SDL_QUIT)
             {
+                save_game(&saveFilePath, *next_event, current_dialogue, show_overlay, current_background_path);
                 exit(0);
             }
             else if (e.type == SDL_KEYDOWN)
@@ -378,27 +411,67 @@ Dialogue *process_dialogue(Dialogue *current_dialogue, Dialogue dialogues[], uin
         else
         {
             printf("Invalid choice. Exiting.\n");
+            *ending = 0;
             return NULL;
         }
     }
     else if (current_dialogue->options_count == 1)
     {
-        if (current_dialogue->options[0].next && current_dialogue->options[0].next[0] != '\0')
+        printf("Options:\n");
+        for (uint8_t i = 0; i < current_dialogue->options_count; i++)
         {
-            Dialogue *next_dialogue = find_dialogue_by_key(dialogues, dialogues_count, current_dialogue->options[0].next);
-            if (next_dialogue != NULL)
+            printf("%c. %s\n", 'A' + i, current_dialogue->options[i].text);
+        }
+
+        SDL_Event e;
+        int option_index = -1;
+        while (SDL_WaitEvent(&e))
+        {
+            if (e.type == SDL_QUIT)
             {
-                return next_dialogue;
+                save_game(&saveFilePath, *next_event, current_dialogue, show_overlay, current_background_path);
+                exit(0);
             }
-            else
+            else if (e.type == SDL_KEYDOWN)
             {
-                *next_event = find_event_by_key(events, events_count, current_dialogue->options[0].next);
+                char choice = e.key.keysym.sym;
+                if (choice >= SDLK_a && choice <= SDLK_c)
+                {
+                    option_index = choice - SDLK_a;
+                    break;
+                }
+                else if (choice == SDLK_t)
+                {
+                    show_overlay = !show_overlay;
+                    display_image(renderer, current_background_texture, current_character_texture, text_texture, current_dialogue); // 更新畫面以顯示或隱藏白框
+                }
+            }
+        }
+        if (option_index >= 0 && option_index < current_dialogue->options_count)
+        {
+            if (current_dialogue->options[0].next && current_dialogue->options[0].next[0] != '\0')
+            {
+                Dialogue *next_dialogue = find_dialogue_by_key(dialogues, dialogues_count, current_dialogue->options[0].next);
+                if (next_dialogue != NULL)
+                {
+                    return next_dialogue;
+                }
+                else
+                {
+                    *next_event = find_event_by_key(events, events_count, current_dialogue->options[0].next);
+                    return NULL;
+                }
+            }
+            else if (current_dialogue->options[0].event && current_dialogue->options[0].event[0] != '\0')
+            {
+                *next_event = find_event_by_key(events, events_count, current_dialogue->options[0].event);
                 return NULL;
             }
         }
-        else if (current_dialogue->options[0].event && current_dialogue->options[0].event[0] != '\0')
+        else
         {
-            *next_event = find_event_by_key(events, events_count, current_dialogue->options[0].event);
+            printf("Invalid choice. Exiting.\n");
+            *ending = 0;
             return NULL;
         }
     }
@@ -437,13 +510,15 @@ Dialogue *process_event(Event *current_event, Dialogue dialogues[], uint16_t dia
         {
             char full_path[512];
             snprintf(full_path, sizeof(full_path), "%s/%s", current_path, scene->background);
-            SDL_Texture *new_background_texture = load_texture(renderer, full_path);
+            strncpy(current_background_path, full_path, 512);
+            SDL_Texture *new_background_texture = load_texture(renderer, current_background_path);
             if (new_background_texture != NULL)
             {
                 if (current_background_texture != NULL)
                 {
                     SDL_DestroyTexture(current_background_texture);
                 }
+                old_background_texture = current_background_texture;
                 current_background_texture = new_background_texture;
             }
         }
@@ -518,7 +593,24 @@ int main(int argc, char *argv[])
         items[i] = initial_item(items[i]);
     }
 
-    toml_table_t *config = parseToml(filePath);
+    FILE *pFile = NULL;
+    if ((pFile = fopen("/home/Ronnie/final_project/example_game/script.toml", "r")) == NULL)
+    {
+        printf("File could not be opened!\n");
+        return 1;
+    }
+
+    char errbuf[200] = {0};
+    toml_table_t *config = toml_parse_file(pFile, errbuf, sizeof(errbuf));
+    fclose(pFile);
+    if (!config)
+    {
+        printf("Parsing error: %s\n", errbuf);
+        return 1;
+    }
+
+    FILE *fpp = NULL;
+    int ending = -1;
     if (config != NULL)
     {
         load_data(config, &player, scenes, characters, events, dialogues, items, options, &inventory_count, &scenes_count, &characters_count, &events_count, &dialogues_count, &items_count, &options_count); // 新增&player和&inventory_count
@@ -531,16 +623,35 @@ int main(int argc, char *argv[])
         Dialogue *current_dialogue = NULL;
         Event *next_event = NULL;
 
-        if (current_event != NULL)
+        // 加載遊戲狀態
+        if ((fpp = fopen(saveFilePath, "r")) != NULL)
         {
-            current_dialogue = process_event(current_event, dialogues, dialogues_count, scenes, scenes_count, renderer);
+            fclose(fpp);
+            load_game(saveFilePath, &current_event, &current_dialogue, &show_overlay, current_background_path, events, events_count, dialogues, dialogues_count);
+            SDL_Texture *new_background_texture = load_texture(renderer, current_background_path);
+            if (new_background_texture != NULL)
+            {
+                if (current_background_texture != NULL)
+                {
+                    SDL_DestroyTexture(current_background_texture);
+                }
+                current_background_texture = new_background_texture;
+            }
+        }
+        else
+        {
+            if (current_event != NULL)
+            {
+                current_dialogue = process_event(current_event, dialogues, dialogues_count, scenes, scenes_count, renderer);
+            }
         }
 
         while (current_dialogue != NULL || next_event != NULL)
         {
             if (current_dialogue != NULL)
             {
-                current_dialogue = process_dialogue(current_dialogue, dialogues, dialogues_count, events, events_count, &next_event, scenes, scenes_count, characters, characters_count, renderer);
+                save_game(&saveFilePath, next_event, current_dialogue, show_overlay, current_background_path);
+                current_dialogue = process_dialogue(current_dialogue, dialogues, dialogues_count, events, events_count, &next_event, scenes, scenes_count, characters, characters_count, renderer, &ending);
                 if (next_event != NULL)
                 {
                     current_dialogue = NULL;
@@ -560,11 +671,21 @@ int main(int argc, char *argv[])
                     if (e.type == SDL_QUIT)
                     {
                         cleanup_sdl(window, renderer);
+                        if ((fpp = fopen("/home/Ronnie/final_project/save_game.json", "r")) != NULL)
+                        {
+                            fclose(fpp);
+                            remove("/home/Ronnie/final_project/save_game.json");
+                        }
                         return 0;
                     }
                     else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_SPACE)
                     {
                         cleanup_sdl(window, renderer);
+                        if ((fpp = fopen("/home/Ronnie/final_project/save_game.json", "r")) != NULL)
+                        {
+                            fclose(fpp);
+                            remove("/home/Ronnie/final_project/save_game.json");
+                        }
                         return 0;
                     }
                 }
@@ -604,6 +725,14 @@ int main(int argc, char *argv[])
 
     // Cleanup SDL
     cleanup_sdl(window, renderer);
+    if (ending != 0)
+    {
+        if ((fpp = fopen("/home/Ronnie/final_project/save_game.json", "r")) != NULL)
+        {
+            fclose(fpp);
+            remove("/home/Ronnie/final_project/save_game.json");
+        }
+    }
 
     return 0;
 }

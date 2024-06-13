@@ -1,3 +1,5 @@
+#ifndef PARSETOML_H_INCLUDED
+#define PARSETOML_H_INCLUDED
 #include <stdio.h>
 #include <stdlib.h>
 #include "toml.h"
@@ -75,3 +77,5 @@ void free_character(Character character);
 void free_event(Event event);
 void free_dialogue(Dialogue dialogue);
 void free_item(Item item);
+
+#endif
