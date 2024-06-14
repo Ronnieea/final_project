@@ -1,53 +1,53 @@
 [scene.market]
-background = "/example_game/assets/market.bmp"
+background = "example_game/assets/market.bmp"
 name = "Bustling Market"
 
 [scene.castle]
-background = "/example_game/assets/castle.bmp"
+background = "example_game/assets/castle.bmp"
 name = "Ancient Castle"
 
 [scene.forest]
-background = "/example_game/assets/forest.bmp"
+background = "example_game/assets/forest.bmp"
 name = "Deep Forest"
 
 [scene.cave]
-background = "/example_game/assets/cave.bmp"
+background = "example_game/assets/cave.bmp"
 name = "Mysterious Cave"
 
 [character.knight]
 affinity = 50
-avatar = "/example_game/assets/knight_avatar.bmp"
+avatar = "example_game/assets/knight_avatar.bmp"
 name = "Knight A-Yong"
-tachie = "/example_game/assets/knight_tachie.bmp"
+tachie = "example_game/assets/knight_tachie.bmp"
 
 [character.merchant]
 affinity = 50
-avatar = "/example_game/assets/merchant_avatar.bmp"
+avatar = "example_game/assets/merchant_avatar.bmp"
 name = "Merchant"
-tachie = "/example_game/assets/merchant_tachie.bmp"
+tachie = "example_game/assets/merchant_tachie.bmp"
 
 [character.witch]
 affinity = 50
 avatar = "/example_game/assets/witch_avatar.bmp"
 name = "Witch"
-tachie = "/example_game/assets/witch_tachie.bmp"
+tachie = "example_game/assets/witch_tachie.bmp"
 
 [character.guard]
 affinity = 50
 avatar = "/example_game/assets/guard_avatar.bmp"
 name = "Castle Guard"
-tachie = "/example_game/assets/guard_tachie.bmp"
+tachie = "example_game/assets/guard_tachie.bmp"
 
 [item.sword]
-icon = "/example_game/assets/sword_icon.bmp"
+icon = "example_game/assets/sword_icon.bmp"
 name = "Magic Sword"
 
 [item.potion]
-icon = "/example_game/assets/potion_icon.bmp"
+icon = "example_game/assets/potion_icon.bmp"
 name = "Healing Potion"
 
 [item.scroll]
-icon = "/example_game/assets/scroll_icon.bmp"
+icon = "example_game/assets/sword_icon.bmp"
 name = "Ancient Scroll"
 
 [player]
