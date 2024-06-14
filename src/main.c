@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include "parseToml.h"
 #include "save_game.h"
+#include "audio.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
@@ -23,6 +24,7 @@ TTF_Font *font = NULL;
 int show_overlay = 0;
 char *saveFilePath = "save_game.json"; // 保存檔案地址
 char current_background_path[512];
+int current_sound = 0;
 
 int init_sdl(SDL_Window **window, SDL_Renderer **renderer)
 {
@@ -126,6 +128,50 @@ SDL_Texture *render_text(SDL_Renderer *renderer, const char *text, SDL_Color col
     return texture;
 }
 
+void fade_out(SDL_Renderer *renderer, SDL_Texture *texture)
+{
+    int w, h;
+    SDL_GetRendererOutputSize(renderer, &w, &h);
+
+    for (int alpha = 255; alpha >= 0; alpha -= 5)
+    {
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+
+        if (texture != NULL)
+        {
+            SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+            SDL_SetTextureAlphaMod(texture, alpha);
+            SDL_RenderCopy(renderer, texture, NULL, NULL);
+        }
+
+        SDL_RenderPresent(renderer);
+        SDL_Delay(10); // 調整延遲以控制動畫速度
+    }
+}
+
+void fade_in(SDL_Renderer *renderer, SDL_Texture *texture)
+{
+    int w, h;
+    SDL_GetRendererOutputSize(renderer, &w, &h);
+
+    for (int alpha = 0; alpha <= 255; alpha += 5)
+    {
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+
+        if (texture != NULL)
+        {
+            SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+            SDL_SetTextureAlphaMod(texture, alpha);
+            SDL_RenderCopy(renderer, texture, NULL, NULL);
+        }
+
+        SDL_RenderPresent(renderer);
+        SDL_Delay(10); // 調整延遲以控制動畫速度
+    }
+}
+
 void display_image(SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *character, SDL_Texture *text_texture, Dialogue *current_dialogue)
 {
     SDL_RenderClear(renderer);
@@ -141,12 +187,16 @@ void display_image(SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture 
     SDL_GetRendererOutputSize(renderer, &w, &h);
 
     // 繪製角色（縮放並居中在上方）
+    SDL_Rect dest_rect_cpy = {0};
     if (character != NULL)
     {
         int char_w, char_h;
         SDL_QueryTexture(character, NULL, NULL, &char_w, &char_h);
+        char_w += 350;
+        char_h += 350;
         SDL_Rect dest_rect = {(w - char_w) / 2, h * 3 / 4 - char_h, char_w, char_h};
         SDL_RenderCopy(renderer, character, NULL, &dest_rect);
+        dest_rect_cpy = dest_rect;
     }
 
     // 繪製台詞區域（全寬半透明白色）
@@ -156,12 +206,45 @@ void display_image(SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture 
     SDL_RenderFillRect(renderer, &text_box);
 
     // 繪製台詞文字
+    SDL_Rect text_rect_cpy = {0};
     if (text_texture != NULL)
     {
         int text_w, text_h;
         SDL_QueryTexture(text_texture, NULL, NULL, &text_w, &text_h);
+        if (text_w > w)
+        {
+            text_w = w - 10;
+        }
         SDL_Rect text_rect = {10, h * 3 / 4 + 10, text_w, text_h};
         SDL_RenderCopy(renderer, text_texture, NULL, &text_rect);
+        for (int alpha = 0; alpha <= 255; alpha += 5)
+        {
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+            SDL_RenderClear(renderer);
+
+            SDL_RenderCopy(renderer, background, NULL, NULL);
+            // 繪製台詞區域（全寬半透明白色）
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_Rect text_box = {0, h * 3 / 4, w, h / 4};
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 180); // 白色，透明度180
+            SDL_RenderFillRect(renderer, &text_box);
+            if (character != NULL)
+            {
+                SDL_SetTextureBlendMode(character, SDL_BLENDMODE_BLEND);
+                SDL_SetTextureAlphaMod(character, alpha);
+                SDL_RenderCopy(renderer, character, NULL, &dest_rect_cpy);
+            }
+            if (text_texture != NULL)
+            {
+                SDL_SetTextureBlendMode(text_texture, SDL_BLENDMODE_BLEND);
+                SDL_SetTextureAlphaMod(text_texture, alpha);
+                SDL_RenderCopy(renderer, text_texture, NULL, &text_rect);
+            }
+
+            SDL_RenderPresent(renderer);
+            SDL_Delay(10); // 調整延遲以控制動畫速度
+        }
+        text_rect_cpy = text_rect;
     }
 
     // 繪製選項文字
@@ -288,33 +371,6 @@ void print_all_data(Scene scenes[], uint16_t scenes_count, Character characters[
     }
 }
 
-void animate_transition(SDL_Renderer *renderer, SDL_Texture *from_texture, SDL_Texture *to_texture)
-{
-    int w, h;
-    SDL_GetRendererOutputSize(renderer, &w, &h);
-
-    for (int alpha = 0; alpha <= 255; alpha += 5)
-    {
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderClear(renderer);
-
-        if (from_texture != NULL)
-        {
-            SDL_SetTextureAlphaMod(from_texture, 255 - alpha);
-            SDL_RenderCopy(renderer, from_texture, NULL, NULL);
-        }
-
-        if (to_texture != NULL)
-        {
-            SDL_SetTextureAlphaMod(to_texture, alpha);
-            SDL_RenderCopy(renderer, to_texture, NULL, NULL);
-        }
-
-        SDL_RenderPresent(renderer);
-        SDL_Delay(10); // 調整延遲以控制動畫速度
-    }
-}
-
 Dialogue *process_dialogue(Dialogue *current_dialogue, Dialogue dialogues[], uint16_t dialogues_count, Event events[], uint16_t events_count, Event **next_event, Scene scenes[], uint16_t scenes_count, Character characters[], uint16_t characters_count, SDL_Renderer *renderer, int *ending)
 {
     Character *character = find_character_by_key(characters, characters_count, current_dialogue->character);
@@ -330,9 +386,19 @@ Dialogue *process_dialogue(Dialogue *current_dialogue, Dialogue dialogues[], uin
             {
                 if (current_character_texture != NULL)
                 {
+                    if (strcmp(current_dialogue->character, "witch") == 0)
+                    {
+                        stop_sound(3);
+                    }
                     SDL_DestroyTexture(current_character_texture);
                 }
                 current_character_texture = new_character_texture;
+                if (strcmp(current_dialogue->character, "witch") == 0)
+                {
+                    stop_sound(current_sound);
+                    play_sound(3);
+                    current_sound = 3;
+                }
             }
         }
         else
@@ -344,7 +410,6 @@ Dialogue *process_dialogue(Dialogue *current_dialogue, Dialogue dialogues[], uin
     SDL_Color textColor = {0, 0, 0, 255}; // 黑色
     SDL_Texture *text_texture = render_text(renderer, current_dialogue->text, textColor);
 
-    animate_transition(renderer, old_background_texture, current_background_texture);
     display_image(renderer, current_background_texture, current_character_texture, text_texture, current_dialogue);
 
     printf("Dialogue: %s\n", current_dialogue->text);
@@ -516,10 +581,36 @@ Dialogue *process_event(Event *current_event, Dialogue dialogues[], uint16_t dia
             {
                 if (current_background_texture != NULL)
                 {
+                    stop_sound(current_sound);
+                    fade_out(renderer, current_background_texture);
                     SDL_DestroyTexture(current_background_texture);
                 }
-                old_background_texture = current_background_texture;
                 current_background_texture = new_background_texture;
+                fade_in(renderer, current_background_texture);
+                if (strcmp(current_event->scene, "forest") == 0)
+                {
+                    stop_sound(current_sound);
+                    play_sound(1);
+                    current_sound = 1;
+                }
+                else if (strcmp(current_event->scene, "market") == 0)
+                {
+                    stop_sound(current_sound);
+                    play_sound(0);
+                    current_sound = 0;
+                }
+                else if (strcmp(current_event->scene, "cave") == 0)
+                {
+                    stop_sound(current_sound);
+                    play_sound(2);
+                    current_sound = 2;
+                }
+                else if (strcmp(current_event->scene, "castle") == 0)
+                {
+                    stop_sound(current_sound);
+                    play_sound(4);
+                    current_sound = 4;
+                }
             }
         }
         else
@@ -567,6 +658,13 @@ int main(int argc, char *argv[])
     SDL_Renderer *renderer = NULL;
     if (!init_sdl(&window, &renderer))
     {
+        return 1;
+    }
+
+    // Initialize OpenAL
+    if (!init_openal())
+    {
+        cleanup_sdl(window, renderer);
         return 1;
     }
 
@@ -725,6 +823,7 @@ int main(int argc, char *argv[])
 
     // Cleanup SDL
     cleanup_sdl(window, renderer);
+    cleanup_openal();
     if (ending != 0)
     {
         if ((fpp = fopen("/home/Ronnie/final_project/save_game.json", "r")) != NULL)
