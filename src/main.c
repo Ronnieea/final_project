@@ -433,7 +433,7 @@ Dialogue *process_dialogue(Dialogue *current_dialogue, Dialogue dialogues[], uin
         {
             if (e.type == SDL_QUIT)
             {
-                save_game(&saveFilePath, *next_event, current_dialogue, show_overlay, current_background_path);
+                save_game(&saveFilePath, *next_event, current_dialogue, show_overlay, current_background_path, current_sound);
                 exit(0);
             }
             else if (e.type == SDL_KEYDOWN)
@@ -494,7 +494,7 @@ Dialogue *process_dialogue(Dialogue *current_dialogue, Dialogue dialogues[], uin
         {
             if (e.type == SDL_QUIT)
             {
-                save_game(&saveFilePath, *next_event, current_dialogue, show_overlay, current_background_path);
+                save_game(&saveFilePath, *next_event, current_dialogue, show_overlay, current_background_path, current_sound);
                 exit(0);
             }
             else if (e.type == SDL_KEYDOWN)
@@ -725,7 +725,8 @@ int main(int argc, char *argv[])
         if ((fpp = fopen(saveFilePath, "r")) != NULL)
         {
             fclose(fpp);
-            load_game(saveFilePath, &current_event, &current_dialogue, &show_overlay, current_background_path, events, events_count, dialogues, dialogues_count);
+            load_game(saveFilePath, &current_event, &current_dialogue, &show_overlay, &current_sound, current_background_path, events, events_count, dialogues, dialogues_count);
+            play_sound(current_sound);
             SDL_Texture *new_background_texture = load_texture(renderer, current_background_path);
             if (new_background_texture != NULL)
             {
@@ -738,6 +739,97 @@ int main(int argc, char *argv[])
         }
         else
         {
+            // Before game started
+            int w, h;
+            SDL_GetRendererOutputSize(renderer, &w, &h);
+            SDL_Texture *start_background_texture = load_texture(renderer, "/home/Ronnie/final_project/src/assets/Interative.bmp");
+            SDL_Texture *start_button = load_texture(renderer, "/home/Ronnie/final_project/src/assets/start_button.bmp");
+            SDL_RenderClear(renderer);
+            int button_w, button_h;
+            SDL_QueryTexture(start_button, NULL, NULL, &button_w, &button_h);
+            SDL_Rect button_rect = {(w - button_w) / 2, h * 7 / 8 - button_h, button_w, button_h};
+            for (int alpha = 0; alpha <= 255; alpha += 5)
+            {
+                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+                SDL_RenderClear(renderer);
+
+                if (start_background_texture != NULL)
+                {
+                    SDL_SetTextureBlendMode(start_background_texture, SDL_BLENDMODE_BLEND);
+                    SDL_SetTextureAlphaMod(start_background_texture, alpha);
+                    SDL_RenderCopy(renderer, start_background_texture, NULL, NULL);
+                }
+
+                if (start_button != NULL)
+                {
+                    SDL_SetTextureBlendMode(start_button, SDL_BLENDMODE_BLEND);
+                    SDL_SetTextureAlphaMod(start_button, alpha);
+                    SDL_RenderCopy(renderer, start_button, NULL, &button_rect);
+                }
+
+                SDL_RenderPresent(renderer);
+                SDL_Delay(10); // 調整延遲以控制動畫速度
+            }
+            play_sound(5);
+            SDL_Event e;
+            int quit = -1;
+            while (quit != 1)
+            {
+                while (SDL_WaitEvent(&e))
+                {
+                    if (e.type == SDL_QUIT)
+                    {
+                        quit = 1;
+                        break;
+                    }
+                    else if (e.type == SDL_MOUSEBUTTONDOWN)
+                    {
+                        int x, y;
+                        SDL_GetMouseState(&x, &y);
+                        if (x >= button_rect.x && x <= button_rect.x + button_rect.w && y >= button_rect.y && y <= button_rect.y + button_rect.h)
+                        {
+                            printf("Button clicked!\n");
+                            quit = 1;
+                            break;
+                        }
+                    }
+                    else if (e.type == SDL_KEYDOWN)
+                    {
+                        switch (e.key.keysym.sym)
+                        {
+                        case SDLK_q:
+                            quit = 1;
+                            break;
+                        }
+                    }
+                }
+            }
+            for (int alpha = 255; alpha >= 0; alpha -= 5)
+            {
+                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+                SDL_RenderClear(renderer);
+
+                if (start_background_texture != NULL)
+                {
+                    SDL_SetTextureBlendMode(start_background_texture, SDL_BLENDMODE_BLEND);
+                    SDL_SetTextureAlphaMod(start_background_texture, alpha);
+                    SDL_RenderCopy(renderer, start_background_texture, NULL, NULL);
+                }
+
+                if (start_button != NULL)
+                {
+                    SDL_SetTextureBlendMode(start_button, SDL_BLENDMODE_BLEND);
+                    SDL_SetTextureAlphaMod(start_button, alpha);
+                    SDL_RenderCopy(renderer, start_button, NULL, &button_rect);
+                }
+
+                SDL_RenderPresent(renderer);
+                SDL_Delay(10); // 調整延遲以控制動畫速度
+            }
+            SDL_DestroyTexture(start_background_texture);
+            SDL_DestroyTexture(start_button);
+            stop_sound(5);
+
             if (current_event != NULL)
             {
                 current_dialogue = process_event(current_event, dialogues, dialogues_count, scenes, scenes_count, renderer);
@@ -748,7 +840,7 @@ int main(int argc, char *argv[])
         {
             if (current_dialogue != NULL)
             {
-                save_game(&saveFilePath, next_event, current_dialogue, show_overlay, current_background_path);
+                save_game(&saveFilePath, next_event, current_dialogue, show_overlay, current_background_path, current_sound);
                 current_dialogue = process_dialogue(current_dialogue, dialogues, dialogues_count, events, events_count, &next_event, scenes, scenes_count, characters, characters_count, renderer, &ending);
                 if (next_event != NULL)
                 {

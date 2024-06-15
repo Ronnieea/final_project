@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include "audio.h"
 
-ALuint buffers[5];
-ALuint sources[5];
+ALuint buffers[6];
+ALuint sources[6];
 
 int load_sound(const char *filename, ALuint *buffer)
 {
@@ -65,14 +65,15 @@ int init_openal()
         !load_sound("/home/Ronnie/final_project/example_game/assets/forest_audio.wav", &buffers[1]) ||
         !load_sound("/home/Ronnie/final_project/example_game/assets/cave_audio.wav", &buffers[2]) ||
         !load_sound("/home/Ronnie/final_project/example_game/assets/witch_speaking_audio.wav", &buffers[3]) ||
-        !load_sound("/home/Ronnie/final_project/example_game/assets/castle_audio.wav", &buffers[4]))
+        !load_sound("/home/Ronnie/final_project/example_game/assets/castle_audio.wav", &buffers[4]) ||
+        !load_sound("/home/Ronnie/final_project/src/assets/start_audio.wav", &buffers[5]))
     {
         return 0;
     }
 
-    alGenSources(5, sources);
+    alGenSources(6, sources);
 
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < 6; i++)
     {
         alSourcei(sources[i], AL_BUFFER, buffers[i]);
         alSourcef(sources[i], AL_PITCH, 1);
@@ -87,8 +88,8 @@ int init_openal()
 
 void cleanup_openal()
 {
-    alDeleteSources(5, sources);
-    alDeleteBuffers(5, buffers);
+    alDeleteSources(6, sources);
+    alDeleteBuffers(6, buffers);
     ALCcontext *context = alcGetCurrentContext();
     ALCdevice *device = alcGetContextsDevice(context);
     alcMakeContextCurrent(NULL);
@@ -98,7 +99,7 @@ void cleanup_openal()
 
 void play_sound(int index)
 {
-    if (index < 0 || index >= 5)
+    if (index < 0 || index >= 6)
     {
         printf("Invalid sound index: %d\n", index);
         return;
@@ -108,7 +109,7 @@ void play_sound(int index)
 
 void stop_sound(int index)
 {
-    if (index < 0 || index >= 5)
+    if (index < 0 || index >= 6)
     {
         printf("Invalid sound index: %d\n", index);
         return;

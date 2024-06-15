@@ -4,7 +4,7 @@
 #include <cjson/cJSON.h>
 #include "parseToml.h"
 
-void save_game(char **filename, Event *current_event, Dialogue *current_dialogue, int show_overlay, char current_background_path[512])
+void save_game(char **filename, Event *current_event, Dialogue *current_dialogue, int show_overlay, char current_background_path[512], int current_sound)
 {
     cJSON *current_event_root = cJSON_CreateObject();
     if (current_event != NULL)
@@ -43,6 +43,7 @@ void save_game(char **filename, Event *current_event, Dialogue *current_dialogue
     cJSON_AddItemToObject(root, "current_dialogue", current_dialogue_root);
     cJSON_AddNumberToObject(root, "show_overlay", show_overlay);
     cJSON_AddStringToObject(root, "current_background_path", current_background_path);
+    cJSON_AddNumberToObject(root, "current_sound", current_sound);
 
     *filename = "save_game.json";
     FILE *pFile = NULL;
@@ -61,7 +62,7 @@ void save_game(char **filename, Event *current_event, Dialogue *current_dialogue
     cJSON_Delete(root);
 }
 
-void load_game(const char *filename, Event **current_event, Dialogue **current_dialogue, int *show_overlay, char current_background_path[512], Event events[], uint16_t events_count, Dialogue dialogues[], uint16_t dialogues_count)
+void load_game(const char *filename, Event **current_event, Dialogue **current_dialogue, int *show_overlay, int *current_sound, char current_background_path[512], Event events[], uint16_t events_count, Dialogue dialogues[], uint16_t dialogues_count)
 {
     FILE *pFile = NULL;
     if ((pFile = fopen(filename, "r")) != NULL)
@@ -147,6 +148,7 @@ void load_game(const char *filename, Event **current_event, Dialogue **current_d
 
             // json to overlay
             *show_overlay = cJSON_GetObjectItem(root, "show_overlay")->valueint;
+            *current_sound = cJSON_GetObjectItem(root, "current_sound")->valueint;
             strncpy(current_background_path, cJSON_GetObjectItem(root, "current_background_path")->valuestring, 512);
 
             // cJSON_Delete(current_dialogue_root);
