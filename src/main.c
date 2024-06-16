@@ -284,8 +284,8 @@ void display_image(SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture 
         SDL_RenderFillRect(renderer, &overlay_rect);
 
         // 繪製圖標
-        int icon_size = 100; // 圖標大小
-        int margin = 10; // 圖標間距
+        int icon_size = 100;                                                      // 圖標大小
+        int margin = 10;                                                          // 圖標間距
         int icons_per_row = (overlay_rect.w - 2 * margin) / (icon_size + margin); // 每行圖標數量
         int x = overlay_rect.x + margin;
         int y = overlay_rect.y + margin;
@@ -679,6 +679,8 @@ int main(int argc, char *argv[])
     uint16_t items_count = 0;
     uint16_t options_count = 0;
     uint16_t inventory_count = 0; // 新增
+    char current_path[256];
+    char full_path[512];
 
     // Initialize SDL
     SDL_Window *window = NULL;
@@ -719,7 +721,9 @@ int main(int argc, char *argv[])
     }
 
     FILE *pFile = NULL;
-    if ((pFile = fopen("/home/Ronnie/final_project/example_game/script.toml", "r")) == NULL)
+    getcwd(current_path, sizeof(current_path));
+    snprintf(full_path, sizeof(full_path), "%s/%s", current_path, "example_game/script.toml");
+    if ((pFile = fopen(full_path, "r")) == NULL)
     {
         printf("File could not be opened!\n");
         return 1;
@@ -744,12 +748,10 @@ int main(int argc, char *argv[])
         print_all_data(scenes, scenes_count, characters, characters_count, events, events_count, dialogues, dialogues_count, items, items_count);
 
         // 加载图标纹理
-        char current_path[256];
         if (getcwd(current_path, sizeof(current_path)) != NULL)
         {
             for (int i = 0; i < items_count; i++)
             {
-                char full_path[512];
                 snprintf(full_path, sizeof(full_path), "%s/%s", current_path, items[i].icon);
                 item_textures[i] = load_texture(renderer, full_path);
                 if (item_textures[i] == NULL)
@@ -785,8 +787,11 @@ int main(int argc, char *argv[])
             // Before game started
             int w, h;
             SDL_GetRendererOutputSize(renderer, &w, &h);
-            SDL_Texture *start_background_texture = load_texture(renderer, "/home/Ronnie/final_project/src/assets/Interative.bmp");
-            SDL_Texture *start_button = load_texture(renderer, "/home/Ronnie/final_project/src/assets/start_button.bmp");
+            getcwd(current_path, sizeof(current_path));
+            snprintf(full_path, sizeof(full_path), "%s/%s", current_path, "src/assets/Interative.bmp");
+            SDL_Texture *start_background_texture = load_texture(renderer, full_path);
+            snprintf(full_path, sizeof(full_path), "%s/%s", current_path, "src/assets/start_button.bmp");
+            SDL_Texture *start_button = load_texture(renderer, full_path);
             SDL_RenderClear(renderer);
             int button_w, button_h;
             SDL_QueryTexture(start_button, NULL, NULL, &button_w, &button_h);
@@ -904,20 +909,24 @@ int main(int argc, char *argv[])
                     if (e.type == SDL_QUIT)
                     {
                         cleanup_sdl(window, renderer);
-                        if ((fpp = fopen("/home/Ronnie/final_project/save_game.json", "r")) != NULL)
+                        getcwd(current_path, sizeof(current_path));
+                        snprintf(full_path, sizeof(full_path), "%s/%s", current_path, "save_game.json");
+                        if ((fpp = fopen(full_path, "r")) != NULL)
                         {
                             fclose(fpp);
-                            remove("/home/Ronnie/final_project/save_game.json");
+                            remove(full_path);
                         }
                         return 0;
                     }
                     else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_SPACE)
                     {
                         cleanup_sdl(window, renderer);
-                        if ((fpp = fopen("/home/Ronnie/final_project/save_game.json", "r")) != NULL)
+                        getcwd(current_path, sizeof(current_path));
+                        snprintf(full_path, sizeof(full_path), "%s/%s", current_path, "save_game.json");
+                        if ((fpp = fopen(full_path, "r")) != NULL)
                         {
                             fclose(fpp);
-                            remove("/home/Ronnie/final_project/save_game.json");
+                            remove(full_path);
                         }
                         return 0;
                     }
@@ -961,10 +970,12 @@ int main(int argc, char *argv[])
     cleanup_openal();
     if (ending != 0)
     {
-        if ((fpp = fopen("/home/Ronnie/final_project/save_game.json", "r")) != NULL)
+        getcwd(current_path, sizeof(current_path));
+        snprintf(full_path, sizeof(full_path), "%s/%s", current_path, "save_game.json");
+        if ((fpp = fopen(full_path, "r")) != NULL)
         {
             fclose(fpp);
-            remove("/home/Ronnie/final_project/save_game.json");
+            remove(full_path);
         }
     }
 
