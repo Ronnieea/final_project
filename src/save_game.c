@@ -89,9 +89,6 @@ void load_game(const char *filename, Event **current_event, Dialogue **current_d
                         }
                     }
                 }
-                // strcpy((*current_event)->key, cJSON_GetObjectItem(current_event_root, "key")->valuestring);
-                // strcpy((*current_event)->dialogue, cJSON_GetObjectItem(current_event_root, "dialogue")->valuestring);
-                // strcpy((*current_event)->scene, cJSON_GetObjectItem(current_event_root, "scene")->valuestring);
             }
             else
             {
@@ -114,31 +111,6 @@ void load_game(const char *filename, Event **current_event, Dialogue **current_d
                         }
                     }
                 }
-                // strcpy((*current_dialogue)->key, cJSON_GetObjectItem(current_dialogue_root, "key")->valuestring);
-                // strcpy((*current_dialogue)->character, cJSON_GetObjectItem(current_dialogue_root, "character")->valuestring);
-                // strcpy((*current_dialogue)->item, cJSON_GetObjectItem(current_dialogue_root, "item")->valuestring);
-                // strcpy((*current_dialogue)->text, cJSON_GetObjectItem(current_dialogue_root, "text")->valuestring);
-                // (*current_dialogue)->options_count = (uint8_t)cJSON_GetObjectItem(current_dialogue_root, "options_count")->valueint;
-                // cJSON *current_dialogue_options_root = cJSON_GetObjectItem(current_dialogue_root, "options");
-                // if (current_dialogue_options_root != NULL)
-                // {
-                //     int options_count = cJSON_GetArraySize(current_dialogue_options_root);
-                //     (*current_dialogue)->options_count = options_count;
-                //     for (int i = 0; i < options_count; i++)
-                //     {
-                //         cJSON *json_option = cJSON_GetArrayItem(current_dialogue_options_root, i);
-                //         strcpy((*current_dialogue)->options[i].event, cJSON_GetObjectItem(json_option, "event")->valuestring);
-                //         strcpy((*current_dialogue)->options[i].next, cJSON_GetObjectItem(json_option, "next")->valuestring);
-                //         strcpy((*current_dialogue)->options[i].text, cJSON_GetObjectItem(json_option, "text")->valuestring);
-                //         (*current_dialogue)->options[i].effect = (int32_t)cJSON_GetObjectItem(json_option, "effect")->valueint;
-                //     }
-                // }
-                // else
-                // {
-                //     fprintf(stderr, "Can't find the current_dialogue options object.\n");
-                //     return;
-                // }
-                // cJSON_Delete(current_dialogue_options_root);
             }
             else
             {
@@ -151,8 +123,6 @@ void load_game(const char *filename, Event **current_event, Dialogue **current_d
             *current_sound = cJSON_GetObjectItem(root, "current_sound")->valueint;
             strncpy(current_background_path, cJSON_GetObjectItem(root, "current_background_path")->valuestring, 512);
 
-            // cJSON_Delete(current_dialogue_root);
-            // cJSON_Delete(current_event_root);
             cJSON_Delete(root);
         }
         else
