@@ -1,4 +1,7 @@
-劇本檔格式說明：
+劇本檔格式：TOML檔
+- 存放地點: /example_game/script.toml
+- 命名方式: script.toml
+- 格式說明:
 1. 場景 (scene)
 每個場景有唯一的標識符，每個場景包含背景圖片和名稱。
 [scene.<scene_id>]
@@ -99,32 +102,12 @@ text = "前往市場準備裝備。"
 - 場景動畫: 場景變換時，帶有 1 秒以上的淡入淡出效果
 - 遊戲存檔: 可儲存完整遊玩狀態至檔案，並從檔案回復儲存的狀態。該遊戲狀態存檔為人類可讀，且可直接使用文字編輯器更改
     <注意事項> 遊戲狀態檔案儲存為"save_game.json"，存放在final_project之下，是JSON格式的檔案
-- 音效播放: 使用 OpenAL與sndfile工具來播放音樂和音效，共有提供6種音樂
-
-遊戲方式：
-
+- 音效播放: 使用 OpenAL與sndfile工具來播放音樂和音效，共有6種音樂與音效
 
 
 遊戲畫面及操作簡介：
-
-該event中圖片資訊指向的bmp圖片，會被印出作為背景圖片。
-
-dialogue 的text會被印在下面的白框中作為角色對話。若下方無其他選項，則按tab鍵跳到下一個對話。
-
-dialogue.option 的text，會被作為選項放在下面，供玩家選擇。玩家只需按下ABC選項的鍵盤即可選擇該對話，並跳到下一個畫面。
-
-左上角會顯示背包的內容，代表玩家當下在遊戲中得到的物品，並在遊戲結束時按下空白鍵，最後一頁會顯示得到的物品圖片，再按下空白鍵則程式結束。
-
-畫面右上角會顯示心情指數，顯示玩家在遊戲過程時當下的心情狀態。
-
-特別要求
-
-以下函式庫世運行程式碼時必要的函式庫，請事先準備。
-
-sudo apt update
-sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libopenal-dev libalut-dev libsndfile1-dev libcjson-dev
-
-1. SDL2 和相關的 SDL2_image 和 SDL2_ttf
-2. OpenAL 和相關的 ALUT
-3. libsndfile
-4.  cJSON
+- 該event中圖片資訊指向的bmp圖片，會被印出作為背景圖片。
+- dialogue 的text會被印在下面的白框中作為角色對話。若下方無其他選項，則按tab鍵跳到下一個對話。
+- dialogue.option 的text，會被作為選項放在下面，供玩家選擇。玩家只需按下ABC選項的鍵盤即可選擇該對話，並跳到下一個畫面。
+- 按t代表開啟背包以及心情值統計頁面，打開後可以看到當前蒐集到的物品，再一下可以收回畫面。
+- 畫面右上角會顯示心情指數
