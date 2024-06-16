@@ -27,6 +27,7 @@ char current_background_path[512];
 int current_sound = 0;
 SDL_Texture *item_textures[MAX_ITEMS];
 int items_count = 0;
+int mood = 50; // 心情初始值
 
 int init_sdl(SDL_Window **window, SDL_Renderer **renderer)
 {
@@ -302,6 +303,19 @@ void display_image(SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture 
         }
     }
 
+    // 绘制右上角心情数值
+    char mood_text[50];
+    snprintf(mood_text, sizeof(mood_text), "Mood: %d", mood);
+    SDL_Texture *mood_texture = render_text(renderer, mood_text, (SDL_Color){255, 0, 0, 255}); // 红色
+    if (mood_texture != NULL)
+    {
+        int mood_w, mood_h;
+        SDL_QueryTexture(mood_texture, NULL, NULL, &mood_w, &mood_h);
+        SDL_Rect mood_rect = {w - mood_w - 10, 10, mood_w, mood_h};
+        SDL_RenderCopy(renderer, mood_texture, NULL, &mood_rect);
+        SDL_DestroyTexture(mood_texture);
+    }
+
     SDL_RenderPresent(renderer);
 }
 
@@ -436,6 +450,12 @@ Dialogue *process_dialogue(Dialogue *current_dialogue, Dialogue dialogues[], uin
 
     SDL_Color textColor = {0, 0, 0, 255}; // 黑色
     SDL_Texture *text_texture = render_text(renderer, current_dialogue->text, textColor);
+
+    // 更新心情数值
+    for (uint8_t i = 0; i < current_dialogue->options_count; i++)
+    {
+        mood += current_dialogue->options[i].effect;
+    }
 
     display_image(renderer, current_background_texture, current_character_texture, text_texture, current_dialogue);
 
