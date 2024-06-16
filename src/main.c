@@ -28,6 +28,7 @@ int current_sound = 0;
 SDL_Texture *item_textures[MAX_ITEMS];
 int items_count = 0;
 int mood = 50; // 心情初始值
+uint16_t inventory_count = 0; // 新增
 
 int init_sdl(SDL_Window **window, SDL_Renderer **renderer)
 {
@@ -182,7 +183,7 @@ void fade_in(SDL_Renderer *renderer, SDL_Texture *texture)
     }
 }
 
-void display_image(SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *character, SDL_Texture *text_texture, Dialogue *current_dialogue)
+void display_image(SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture *character, SDL_Texture *text_texture, Dialogue *current_dialogue, Item items[], uint16_t inventory_count, int mood, int show_overlay)
 {
     SDL_RenderClear(renderer);
 
@@ -276,33 +277,6 @@ void display_image(SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture 
         }
     }
 
-    // 绘制独立透明白框
-    if (show_overlay)
-    {
-        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-        SDL_Rect overlay_rect = {w / 4, h / 4, w / 2, h / 2};
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 220); // 白色，透明度220
-        SDL_RenderFillRect(renderer, &overlay_rect);
-
-        // 繪製圖標
-        int icon_size = 100;                                                      // 圖標大小
-        int margin = 10;                                                          // 圖標間距
-        int icons_per_row = (overlay_rect.w - 2 * margin) / (icon_size + margin); // 每行圖標數量
-        int x = overlay_rect.x + margin;
-        int y = overlay_rect.y + margin;
-        for (int i = 0; i < items_count; i++)
-        {
-            SDL_Rect icon_rect = {x, y, icon_size, icon_size};
-            SDL_RenderCopy(renderer, item_textures[i], NULL, &icon_rect);
-            x += icon_size + margin;
-            if ((i + 1) % icons_per_row == 0)
-            {
-                x = overlay_rect.x + margin;
-                y += icon_size + margin;
-            }
-        }
-    }
-
     // 绘制右上角心情数值
     char mood_text[50];
     snprintf(mood_text, sizeof(mood_text), "Mood: %d", mood);
@@ -314,6 +288,71 @@ void display_image(SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture 
         SDL_Rect mood_rect = {w - mood_w - 10, 10, mood_w, mood_h};
         SDL_RenderCopy(renderer, mood_texture, NULL, &mood_rect);
         SDL_DestroyTexture(mood_texture);
+    }
+
+    // 绘制左上角背包内容
+    SDL_Texture *backpack_texture = render_text(renderer, "Backpack:", (SDL_Color){255, 0, 0, 255}); // 红色
+    if (backpack_texture != NULL)
+    {
+        int bp_w, bp_h;
+        SDL_QueryTexture(backpack_texture, NULL, NULL, &bp_w, &bp_h);
+        SDL_Rect bp_rect = {10, 10, bp_w, bp_h};
+        SDL_RenderCopy(renderer, backpack_texture, NULL, &bp_rect);
+        SDL_DestroyTexture(backpack_texture);
+    }
+
+    int bp_y_offset = 60; // 位置下移
+    for (int i = 0; i < inventory_count; i++)
+    {
+        SDL_Texture *item_name_texture = render_text(renderer, items[i].name, (SDL_Color){255, 0, 0, 255}); // 红色
+        if (item_name_texture != NULL)
+        {
+            int item_w, item_h;
+            SDL_QueryTexture(item_name_texture, NULL, NULL, &item_w, &item_h);
+            SDL_Rect item_rect = {10, bp_y_offset, item_w, item_h};
+            SDL_RenderCopy(renderer, item_name_texture, NULL, &item_rect);
+            bp_y_offset += item_h + 5; // 间隔
+            SDL_DestroyTexture(item_name_texture);
+        }
+    }
+
+    SDL_RenderPresent(renderer);
+}
+
+void display_items(SDL_Renderer *renderer, SDL_Texture *background, Item items[], uint16_t inventory_count)
+{
+    SDL_RenderClear(renderer);
+
+    // 绘制背景
+    if (background != NULL)
+    {
+        SDL_RenderCopy(renderer, background, NULL, NULL);
+    }
+
+    // 获取窗口大小
+    int w, h;
+    SDL_GetRendererOutputSize(renderer, &w, &h);
+
+    int x_offset = 50;
+    int y_offset = 50;
+
+    for (int i = 0; i < inventory_count; i++)
+    {
+        SDL_Texture *item_texture = item_textures[i];
+        if (item_texture != NULL)
+        {
+            int item_w, item_h;
+            SDL_QueryTexture(item_texture, NULL, NULL, &item_w, &item_h);
+            SDL_Rect item_rect = {x_offset, y_offset, item_w, item_h};
+            SDL_RenderCopy(renderer, item_texture, NULL, &item_rect);
+            y_offset += item_h + 10; // 间隔
+
+            if (y_offset + item_h > h)
+            {
+                y_offset = 50;
+                x_offset += item_w + 10; // 换列
+            }
+        }
     }
 
     SDL_RenderPresent(renderer);
@@ -412,7 +451,7 @@ void print_all_data(Scene scenes[], uint16_t scenes_count, Character characters[
     }
 }
 
-Dialogue *process_dialogue(Dialogue *current_dialogue, Dialogue dialogues[], uint16_t dialogues_count, Event events[], uint16_t events_count, Event **next_event, Scene scenes[], uint16_t scenes_count, Character characters[], uint16_t characters_count, SDL_Renderer *renderer, int *ending)
+Dialogue *process_dialogue(Dialogue *current_dialogue, Dialogue dialogues[], uint16_t dialogues_count, Event events[], uint16_t events_count, Event **next_event, Scene scenes[], uint16_t scenes_count, Character characters[], uint16_t characters_count, SDL_Renderer *renderer, Item items[], uint16_t inventory_count, int *ending, int mood)
 {
     Character *character = find_character_by_key(characters, characters_count, current_dialogue->character);
     if (character != NULL)
@@ -457,7 +496,7 @@ Dialogue *process_dialogue(Dialogue *current_dialogue, Dialogue dialogues[], uin
         mood += current_dialogue->options[i].effect;
     }
 
-    display_image(renderer, current_background_texture, current_character_texture, text_texture, current_dialogue);
+    display_image(renderer, current_background_texture, current_character_texture, text_texture, current_dialogue, items, inventory_count, mood, show_overlay);
 
     printf("Dialogue: %s\n", current_dialogue->text);
 
@@ -490,11 +529,6 @@ Dialogue *process_dialogue(Dialogue *current_dialogue, Dialogue dialogues[], uin
                 {
                     option_index = choice - SDLK_a;
                     break;
-                }
-                else if (choice == SDLK_t)
-                {
-                    show_overlay = !show_overlay;
-                    display_image(renderer, current_background_texture, current_character_texture, text_texture, current_dialogue); // 更新畫面以顯示或隱藏白框
                 }
             }
         }
@@ -552,11 +586,6 @@ Dialogue *process_dialogue(Dialogue *current_dialogue, Dialogue dialogues[], uin
                     option_index = choice - SDLK_a;
                     break;
                 }
-                else if (choice == SDLK_t)
-                {
-                    show_overlay = !show_overlay;
-                    display_image(renderer, current_background_texture, current_character_texture, text_texture, current_dialogue); // 更新畫面以顯示或隱藏白框
-                }
             }
         }
         if (option_index >= 0 && option_index < current_dialogue->options_count)
@@ -599,11 +628,6 @@ Dialogue *process_dialogue(Dialogue *current_dialogue, Dialogue dialogues[], uin
             else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_SPACE)
             {
                 return NULL;
-            }
-            else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_t)
-            {
-                show_overlay = !show_overlay;
-                display_image(renderer, current_background_texture, current_character_texture, text_texture, current_dialogue); // 更新畫面以顯示或隱藏白框
             }
         }
     }
@@ -698,7 +722,7 @@ int main(int argc, char *argv[])
     uint16_t dialogues_count = 0;
     uint16_t items_count = 0;
     uint16_t options_count = 0;
-    uint16_t inventory_count = 0; // 新增
+    // uint16_t inventory_count = 0; // 已經移到全局
     char current_path[256];
     char full_path[512];
 
@@ -770,7 +794,7 @@ int main(int argc, char *argv[])
         // 加载图标纹理
         if (getcwd(current_path, sizeof(current_path)) != NULL)
         {
-            for (int i = 0; i < items_count; i++)
+            for (int i = 0; i < inventory_count; i++)
             {
                 snprintf(full_path, sizeof(full_path), "%s/%s", current_path, items[i].icon);
                 item_textures[i] = load_texture(renderer, full_path);
@@ -909,7 +933,7 @@ int main(int argc, char *argv[])
             if (current_dialogue != NULL)
             {
                 save_game(&saveFilePath, next_event, current_dialogue, show_overlay, current_background_path, current_sound);
-                current_dialogue = process_dialogue(current_dialogue, dialogues, dialogues_count, events, events_count, &next_event, scenes, scenes_count, characters, characters_count, renderer, &ending);
+                current_dialogue = process_dialogue(current_dialogue, dialogues, dialogues_count, events, events_count, &next_event, scenes, scenes_count, characters, characters_count, renderer, items, inventory_count, &ending, mood);
                 if (next_event != NULL)
                 {
                     current_dialogue = NULL;
@@ -947,6 +971,16 @@ int main(int argc, char *argv[])
                         {
                             fclose(fpp);
                             remove(full_path);
+                        }
+                        // 显示所有物品
+                        while (1)
+                        {
+                            display_items(renderer, current_background_texture, items, inventory_count);
+                            SDL_WaitEvent(&e);
+                            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_SPACE)
+                            {
+                                break;
+                            }
                         }
                         return 0;
                     }
