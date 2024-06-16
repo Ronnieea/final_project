@@ -113,11 +113,13 @@ dialogue 的text會被印在下面的白框中作為角色對話。若下方無�
 
 dialogue.option 的text，會被作為選項放在下面，供玩家選擇。玩家只需按下ABC選項的鍵盤即可選擇該對話，並跳到下一個畫面。
 
--t代表開啟背包以及心情值統計頁面，打開後可以看到當前蒐集到的物品，再一下可以收回畫面。
+左上角會顯示背包的內容，代表玩家當下在遊戲中得到的物品，並在遊戲結束時按下空白鍵，最後一頁會顯示得到的物品圖片，再按下空白鍵則程式結束。
 
-畫面右上角會顯示心情指數
+畫面右上角會顯示心情指數，顯示玩家在遊戲過程時當下的心情狀態。
 
 特別要求
+
+以下函式庫世運行程式碼時必要的函式庫，請事先準備。
 
 sudo apt update
 sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libopenal-dev libalut-dev libsndfile1-dev libcjson-dev
