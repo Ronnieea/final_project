@@ -25,6 +25,8 @@ int show_overlay = 0;
 char *saveFilePath = "save_game.json"; // 保存檔案地址
 char current_background_path[512];
 int current_sound = 0;
+SDL_Texture *item_textures[MAX_ITEMS];
+int items_count = 0;
 
 int init_sdl(SDL_Window **window, SDL_Renderer **renderer)
 {
@@ -83,6 +85,13 @@ void cleanup_sdl(SDL_Window *window, SDL_Renderer *renderer)
     if (current_character_texture)
     {
         SDL_DestroyTexture(current_character_texture);
+    }
+    for (int i = 0; i < items_count; i++)
+    {
+        if (item_textures[i])
+        {
+            SDL_DestroyTexture(item_textures[i]);
+        }
     }
     if (font)
     {
@@ -273,6 +282,24 @@ void display_image(SDL_Renderer *renderer, SDL_Texture *background, SDL_Texture 
         SDL_Rect overlay_rect = {w / 4, h / 4, w / 2, h / 2};
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 220); // 白色，透明度220
         SDL_RenderFillRect(renderer, &overlay_rect);
+
+        // 繪製圖標
+        int icon_size = 100; // 圖標大小
+        int margin = 10; // 圖標間距
+        int icons_per_row = (overlay_rect.w - 2 * margin) / (icon_size + margin); // 每行圖標數量
+        int x = overlay_rect.x + margin;
+        int y = overlay_rect.y + margin;
+        for (int i = 0; i < items_count; i++)
+        {
+            SDL_Rect icon_rect = {x, y, icon_size, icon_size};
+            SDL_RenderCopy(renderer, item_textures[i], NULL, &icon_rect);
+            x += icon_size + margin;
+            if ((i + 1) % icons_per_row == 0)
+            {
+                x = overlay_rect.x + margin;
+                y += icon_size + margin;
+            }
+        }
     }
 
     SDL_RenderPresent(renderer);
@@ -715,6 +742,22 @@ int main(int argc, char *argv[])
 
         // Print all data with labels
         print_all_data(scenes, scenes_count, characters, characters_count, events, events_count, dialogues, dialogues_count, items, items_count);
+
+        // 加载图标纹理
+        char current_path[256];
+        if (getcwd(current_path, sizeof(current_path)) != NULL)
+        {
+            for (int i = 0; i < items_count; i++)
+            {
+                char full_path[512];
+                snprintf(full_path, sizeof(full_path), "%s/%s", current_path, items[i].icon);
+                item_textures[i] = load_texture(renderer, full_path);
+                if (item_textures[i] == NULL)
+                {
+                    printf("无法加载图标纹理 %s\n", full_path);
+                }
+            }
+        }
 
         // Start from the event with key "start"
         Event *current_event = find_event_by_key(events, events_count, "start");
