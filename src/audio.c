@@ -1,10 +1,17 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
 #include "audio.h"
 
 ALuint buffers[6];
 ALuint sources[6];
+
+typedef struct audio
+{
+    char path[256];
+} Audio;
 
 int load_sound(const char *filename, ALuint *buffer)
 {
@@ -61,15 +68,37 @@ int init_openal()
 
     alGenBuffers(5, buffers);
 
-    if (!load_sound("/home/Ronnie/final_project/example_game/assets/market_audio.wav", &buffers[0]) ||
-        !load_sound("/home/Ronnie/final_project/example_game/assets/forest_audio.wav", &buffers[1]) ||
-        !load_sound("/home/Ronnie/final_project/example_game/assets/cave_audio.wav", &buffers[2]) ||
-        !load_sound("/home/Ronnie/final_project/example_game/assets/witch_speaking_audio.wav", &buffers[3]) ||
-        !load_sound("/home/Ronnie/final_project/example_game/assets/castle_audio.wav", &buffers[4]) ||
-        !load_sound("/home/Ronnie/final_project/src/assets/start_audio.wav", &buffers[5]))
+    Audio audio_path[6];
+    strcpy(audio_path[0].path, "example_game/assets/market_audio.wav");
+    strcpy(audio_path[1].path, "example_game/assets/forest_audio.wav");
+    strcpy(audio_path[2].path, "example_game/assets/cave_audio.wav");
+    strcpy(audio_path[3].path, "example_game/assets/witch_speaking_audio.wav");
+    strcpy(audio_path[4].path, "example_game/assets/castle_audio.wav");
+    strcpy(audio_path[5].path, "src/assets/start_audio.wav");
+
+    char current_path[256];
+    if (getcwd(current_path, sizeof(current_path)) != NULL)
     {
-        return 0;
+        for (int i = 0; i < 6; i++)
+        {
+            char full_path[512];
+            snprintf(full_path, sizeof(full_path), "%s/%s", current_path, audio_path[i].path);
+            if (!load_sound(full_path, &buffers[i]))
+            {
+                return 0;
+            }
+        }
     }
+
+    // if (!load_sound("example_game/assets/market_audio.wav", &buffers[0]) ||
+    //     !load_sound("example_game/assets/forest_audio.wav", &buffers[1]) ||
+    //     !load_sound("example_game/assets/cave_audio.wav", &buffers[2]) ||
+    //     !load_sound("example_game/assets/witch_speaking_audio.wav", &buffers[3]) ||
+    //     !load_sound("example_game/assets/castle_audio.wav", &buffers[4]) ||
+    //     !load_sound("src/assets/start_audio.wav", &buffers[5]))
+    // {
+    //     return 0;
+    // }
 
     alGenSources(6, sources);
 
