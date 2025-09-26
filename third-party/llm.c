@@ -8,7 +8,7 @@
 #include <sndfile.h>
 #include "llm.h"
 
-#define API_KEY "sk-proj-2n2IUkrrxg6Pd9LkAgdpT3BlbkFJwqYnhVjgA9VxbaQw2hv2"
+#define API_KEY ""
 #define API_URL "https://api.openai.com/v1/chat/completions"
 #define IMAGE_API_URL "https://api.openai.com/v1/images/generations"
 #define AUDIO_API_URL "https://api.openai.com/v1/audio/speech"
